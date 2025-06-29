@@ -28,11 +28,7 @@
 		"svelte-check": "^4.2.2",
 		"syntax-mcfunction": "github:MinecraftCommands/syntax-mcfunction",
 		"typescript": "^5.8.3",
-		"vite": "^6.3.5"
-	},
-	"pnpm": {
-		"patchedDependencies": {
-			"monaco-textmate": "patches/monaco-textmate.patch"
-		}
+		"vite": "^6.3.5",
+		"vite-plugin-node-polyfills": "^0.23.0"
 	}
 }
