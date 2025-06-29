@@ -1,0 +1,6 @@
+{
+  "pack": {
+    "pack_format": %s,
+    "description": "Datapack containing functions made with mcfunction-server"
+  }
+}

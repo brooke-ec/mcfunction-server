@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "mcfunctionserver",
+  "version": "${version}",
+  "name": "MCFunction Server",
+  "description": "A mod  to add various utilities used by Kanoho.",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "environment": "server",
+  "accessWidener": "mcfunctionserver.accesswidener",
+  "entrypoints": {
+    "main": [
+      "ec.brooke.mcfunctionserver.Mod"
+    ]
+  },
+  "mixins": [
+    "mcfunctionserver.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "minecraft": "${minecraft_version}",
+    "fabric": "*"
+  }
+}
