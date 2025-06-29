@@ -11,6 +11,12 @@ base {
     archivesName = project.archives_base_name
 }
 
+sourceSets {
+    main {
+        java { srcDir 'packages/mod/java' }
+        resources { srcDir 'packages/mod/resources' }
+    }
+}
 
 repositories {
     // Add repositories to retrieve artifacts from in here.
@@ -42,6 +48,8 @@ processResources {
                 "minecraft_version": project.minecraft_version,
                 "loader_version": project.loader_version
     }
+
+    from("packages/editor/build") { into "public" }
 }
 
 def targetJavaVersion = 21
@@ -68,7 +76,7 @@ java {
 }
 
 loom {
-    accessWidenerPath = file("src/main/resources/mcfunctionserver.accesswidener")
+    accessWidenerPath = file "packages/mod/resources/mcfunctionserver.accesswidener"
 }
 
 jar {

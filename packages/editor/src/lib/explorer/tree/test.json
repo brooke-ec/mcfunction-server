@@ -1,0 +1,16 @@
+[
+	{
+		"id": "doc",
+		"children": [
+			{ "id": "doc/party_popper", "children": [{ "id": "doc/party_popper/use" }] },
+			{
+				"id": "doc/alcubierre_drive",
+				"children": [
+					{ "id": "doc/alcubierre_drive/use" },
+					{ "id": "doc/alcubierre_drive/fail" },
+					{ "id": "doc/alcubierre_drive/success" }
+				]
+			}
+		]
+	}
+]

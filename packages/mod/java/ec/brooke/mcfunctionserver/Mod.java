@@ -17,6 +17,7 @@ public class Mod implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+            LOGGER.info("Initializing MCFunctionServer...");
             Path root = server.getWorldPath(LevelResource.DATAPACK_DIR).resolve("editor");
             PackAccessor accessor = new PackAccessor(root);
 

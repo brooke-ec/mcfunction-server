@@ -1,0 +1,38 @@
+{
+	"name": "@mcfunction-server/editor",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"devDependencies": {
+		"@catppuccin/vscode": "^3.17.0",
+		"@sveltejs/adapter-static": "^3.0.8",
+		"@sveltejs/kit": "^2.22.2",
+		"@sveltejs/vite-plugin-svelte": "^5.1.0",
+		"greset": "^2.0.0",
+		"mc-dp-icons": "github:FuncFusion/mc-dp-icons",
+		"melt": "^0.36.0",
+		"monaco-editor": "^0.52.2",
+		"monaco-editor-textmate": "^4.0.0",
+		"monaco-textmate": "^3.0.1",
+		"monaco-vscode-textmate-theme-converter": "^0.1.7",
+		"onigasm": "^2.2.5",
+		"prettier": "^3.6.1",
+		"prettier-plugin-svelte": "^3.4.0",
+		"sass": "^1.89.2",
+		"svelte": "^5.34.8",
+		"svelte-check": "^4.2.2",
+		"syntax-mcfunction": "github:MinecraftCommands/syntax-mcfunction",
+		"typescript": "^5.8.3",
+		"vite": "^6.3.5"
+	},
+	"pnpm": {
+		"patchedDependencies": {
+			"monaco-textmate": "patches/monaco-textmate.patch"
+		}
+	}
+}
