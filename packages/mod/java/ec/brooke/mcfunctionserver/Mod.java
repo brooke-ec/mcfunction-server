@@ -17,13 +17,13 @@ public class Mod implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
-            LOGGER.info("Initializing MCFunctionServer...");
+            // Initialize datapack read/write wrapper
             Path root = server.getWorldPath(LevelResource.DATAPACK_DIR).resolve("editor");
             PackAccessor accessor = new PackAccessor(root);
+            try { accessor.validate(); } catch (IOException e) { throw new RuntimeException(e); }
 
-            try { accessor.validate(); }
-            catch (IOException e) { throw new RuntimeException(e); }
-
+            // Start the webserver on a new thread
+            new Thread(new Server(accessor)::run).start();
         });
     }
 }
