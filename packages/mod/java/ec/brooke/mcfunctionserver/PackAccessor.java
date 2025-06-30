@@ -26,7 +26,7 @@ import java.util.Optional;
  */
 public class PackAccessor {
     public static final String DATA_DIR = "data";
-    private final Path root;
+    public final Path root;
 
     public PackAccessor(Path root) {
         this.root = root;

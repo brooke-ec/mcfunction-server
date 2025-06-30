@@ -5,7 +5,9 @@ import io.javalin.http.Context;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -42,7 +44,9 @@ public class Server {
 
     private void read(Context ctx) throws IOException {
         Path path = accessor.getPath(ResourceLocation.fromNamespaceAndPath("editor", ctx.pathParam("path")));
-        if (Files.exists(path)) ctx.result(new FileInputStream(path.toFile())).contentType("text/mcfunction");
+        ctx.result(path.normalize().toAbsolutePath().toString());
+        if (Files.exists(path) && path.normalize().startsWith(accessor.root.normalize()))
+            ctx.result(new FileInputStream(path.toFile())).contentType("text/mcfunction");
         else ctx.status(404);
     }
 }
