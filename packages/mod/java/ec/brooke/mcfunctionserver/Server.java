@@ -4,10 +4,7 @@ import io.javalin.Javalin;
 import io.javalin.http.Context;
 import net.minecraft.resources.ResourceLocation;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -32,23 +29,34 @@ public class Server {
                     get("/index", this::index);
                     path("/file/<path>", () -> {
                         get(this::read);
+                        put(this::write);
                     });
                 });
             });
         }).start(Mod.CONFIG.address.getHostString(), Mod.CONFIG.address.getPort());
     }
 
-    private void index(Context ctx) throws IOException {
-        ctx.json(Arrays.stream(accessor.index())
+    private void index(Context ctx) {
+        ctx.json(accessor.index().stream()
                 .filter(l -> l.getNamespace().equals(Mod.CONFIG.namespace))
                 .map(ResourceLocation::getPath).toList()
         );
     }
 
-    private void read(Context ctx) throws IOException {
-        Path path = accessor.getPath(ResourceLocation.fromNamespaceAndPath(Mod.CONFIG.namespace, ctx.pathParam("path")));
-        if (Files.exists(path) && path.normalize().startsWith(accessor.root.normalize()))
-            ctx.result(new FileInputStream(path.toFile())).contentType("text/mcfunction");
-        else ctx.status(404);
+    private ResourceLocation parsePath(Context ctx) {
+        return ResourceLocation.fromNamespaceAndPath(Mod.CONFIG.namespace, ctx.pathParam("path"));
+    }
+
+    private void read(Context ctx) {
+        try { ctx.result(accessor.get(parsePath(ctx))).contentType("text/mcfunction"); }
+        catch (FileNotFoundException ignored) { ctx.status(404); }
+    }
+
+    private void write(Context ctx) throws IOException {
+        try {
+            accessor.put(parsePath(ctx), ctx.bodyInputStream());
+            ctx.status(201);
+        }
+        catch (FileNotFoundException ignored) { ctx.status(403); }
     }
 }

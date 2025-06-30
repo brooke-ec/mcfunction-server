@@ -12,9 +12,7 @@ import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.MultiPackResourceManager;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +27,7 @@ public class PackAccessor {
     public final Path root;
 
     public PackAccessor(Path root) {
-        this.root = root;
+        this.root = root.toAbsolutePath().normalize();
     }
 
     /**
@@ -55,15 +53,14 @@ public class PackAccessor {
     /**
      * Indexes the mcfunction files in the pack directory.
      * @return An array of ResourceLocations representing the indexed mcfunction files.
-     * @throws IOException if an I/O error occurs while reading the pack resources.
      */
-    public ResourceLocation[] index() throws IOException {
+    public List<ResourceLocation> index() {
         PackLocationInfo location = new PackLocationInfo("", Component.empty(), PackSource.WORLD, Optional.empty());
         try (
                 PathPackResources resources = new PathPackResources(location, root);
                 MultiPackResourceManager manager = new MultiPackResourceManager(PackType.SERVER_DATA, List.of(resources));
         ) {
-            return ServerFunctionLibrary.LISTER.listMatchingResources(manager).keySet().stream().map(ServerFunctionLibrary.LISTER::fileToId).toArray(ResourceLocation[]::new);
+            return ServerFunctionLibrary.LISTER.listMatchingResources(manager).keySet().stream().map(ServerFunctionLibrary.LISTER::fileToId).toList();
         }
     }
 
@@ -75,5 +72,43 @@ public class PackAccessor {
     public Path getPath(ResourceLocation location) {
         ResourceLocation file = ServerFunctionLibrary.LISTER.idToFile(location);
         return root.resolve(DATA_DIR).resolve(file.getNamespace()).resolve(file.getPath());
+    }
+
+    /**
+     * Validates if a given path is within the root directory of the pack.
+     * @param path The Path to validate.
+     * @return true if the path is valid, false otherwise.
+     */
+    public boolean validatePath(Path path) {
+        return path.toAbsolutePath().normalize().startsWith(root);
+    }
+
+    /**
+     * Retrieves an InputStream for a specific mcfunction file in the pack.
+     * @param location The ResourceLocation of the mcfunction file.
+     * @return An InputStream for the mcfunction file.
+     * @throws FileNotFoundException if the file does not exist or the path is invalid.
+     */
+    public InputStream get(ResourceLocation location) throws FileNotFoundException {
+        Path path = getPath(location);
+        if (validatePath(path)) return new FileInputStream(path.toFile());
+        else throw new FileNotFoundException("File not found or path is invalid: " + path);
+    }
+
+    /**
+     * Writes content to a specific mcfunction file in the pack.
+     * @param location The ResourceLocation of the mcfunction file.
+     * @param content The InputStream containing the content to write.
+     * @throws FileNotFoundException if the path is invalid.
+     * @throws IOException if an I/O error occurs while writing to the file.
+     */
+    public void put(ResourceLocation location, InputStream content) throws IOException {
+        Path path = getPath(location);
+        if (!validatePath(path)) throw new FileNotFoundException("File not found or path is invalid: " + path);
+
+        FileUtil.createDirectoriesSafe(path.getParent());
+        try (OutputStream out = new FileOutputStream(path.toFile())) {
+            content.transferTo(out);
+        }
     }
 }
