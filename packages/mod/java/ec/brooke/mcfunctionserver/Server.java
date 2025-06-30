@@ -2,17 +2,21 @@ package ec.brooke.mcfunctionserver;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import net.minecraft.resources.ResourceLocation;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Server {
-    private final PackAccessor packAccessor;
+    private final PackAccessor accessor;
     private Javalin javalin;
 
-    public Server(PackAccessor packAccessor) {
-        this.packAccessor = packAccessor;
+    public Server(PackAccessor accessor) {
+        this.accessor = accessor;
     }
 
     public void run() {
@@ -24,12 +28,21 @@ public class Server {
             config.router.apiBuilder(() -> {
                 path("/api", () -> {
                     get("/index", this::index);
+                    path("/file/<path>", () -> {
+                        get(this::read);
+                    });
                 });
             });
         }).start(7070);
     }
 
     private void index(Context ctx) throws IOException {
-        ctx.json(packAccessor.index());
+        ctx.json(accessor.index());
+    }
+
+    private void read(Context ctx) throws IOException {
+        Path path = accessor.getPath(ResourceLocation.fromNamespaceAndPath("editor", ctx.pathParam("path")));
+        if (Files.exists(path)) ctx.result(new FileInputStream(path.toFile())).contentType("text/mcfunction");
+        else ctx.status(404);
     }
 }
