@@ -2,11 +2,13 @@ package ec.brooke.mcfunctionserver;
 
 import io.javalin.Javalin;
 import io.javalin.http.Context;
+import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.*;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -59,6 +61,7 @@ public class Server {
     private void read(Context ctx) {
         try { ctx.result(accessor.get(parsePath(ctx))).contentType("text/mcfunction"); }
         catch (FileNotFoundException ignored) { ctx.status(404); }
+        catch (ResourceLocationException ignored) { ctx.status(400); }
     }
 
     private void write(Context ctx) throws IOException {
@@ -67,13 +70,16 @@ public class Server {
             ctx.status(201);
         }
         catch (FileNotFoundException ignored) { ctx.status(403); }
+        catch (ResourceLocationException ignored) { ctx.status(400); }
     }
 
     private void remove(Context ctx) throws IOException {
         try {
             accessor.delete(parsePath(ctx));
             ctx.status(204);
-        } catch (FileNotFoundException ignored) { ctx.status(404); }
+        }
+        catch (FileNotFoundException ignored) { ctx.status(404); }
+        catch (ResourceLocationException ignored) { ctx.status(400); }
     }
 
     private void transfer(Context ctx) throws IOException {
@@ -91,5 +97,6 @@ public class Server {
             ctx.status(201);
         }
         catch (FileNotFoundException ignored) { ctx.status(404); }
+        catch (NoSuchElementException | ResourceLocationException ignored) { ctx.status(400); }
     }
 }
