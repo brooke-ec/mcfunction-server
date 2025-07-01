@@ -5,13 +5,16 @@ import io.javalin.http.Context;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Stream;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Server {
+    private static final String MOVE_COMMAND = "MOVE ";
+    private static final String COPY_COMMAND = "COPY ";
+
     private final PackAccessor accessor;
 
     public Server(PackAccessor accessor) {
@@ -31,6 +34,7 @@ public class Server {
                         get(this::read);
                         put(this::write);
                         delete(this::remove);
+                        patch(this::transfer);
                     });
                 });
             });
@@ -45,7 +49,11 @@ public class Server {
     }
 
     private ResourceLocation parsePath(Context ctx) {
-        return ResourceLocation.fromNamespaceAndPath(Mod.CONFIG.namespace, ctx.pathParam("path"));
+        return parsePath(ctx.pathParam("path"));
+    }
+
+    private ResourceLocation parsePath(String string) {
+        return ResourceLocation.fromNamespaceAndPath(Mod.CONFIG.namespace, string);
     }
 
     private void read(Context ctx) {
@@ -66,5 +74,22 @@ public class Server {
             accessor.delete(parsePath(ctx));
             ctx.status(204);
         } catch (FileNotFoundException ignored) { ctx.status(404); }
+    }
+
+    private void transfer(Context ctx) throws IOException {
+        try {
+            String body = ctx.body();
+            String command = Stream.of(MOVE_COMMAND, COPY_COMMAND)
+                    .sorted(Comparator.comparingInt(String::length))
+                    .filter(body::startsWith).findFirst().orElseThrow();
+
+            ResourceLocation source = parsePath(body.substring(command.length()).trim());
+            ResourceLocation destination = parsePath(ctx);
+
+            if (command.equals(MOVE_COMMAND)) accessor.move(source, destination);
+            else if (command.equals(COPY_COMMAND)) accessor.copy(source, destination);
+            ctx.status(201);
+        }
+        catch (FileNotFoundException ignored) { ctx.status(404); }
     }
 }

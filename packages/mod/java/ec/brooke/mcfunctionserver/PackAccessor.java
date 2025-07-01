@@ -131,4 +131,43 @@ public class PackAccessor {
             }
         }
     }
+
+    private void prepareTransfer(
+            ResourceLocation source,
+            ResourceLocation destination,
+            IOBiConsumer<Path, Path> consumer
+    ) throws IOException {
+        Path sourcePath = getPath(source);
+        Path destinationPath = getPath(destination);
+        if (!pathValid(sourcePath) || !pathValid(destinationPath) || !Files.exists(sourcePath))
+            throw new FileNotFoundException("Source or destination path is invalid");
+
+        FileUtil.createDirectoriesSafe(destinationPath.getParent());
+        consumer.accept(sourcePath, destinationPath);
+    }
+
+    /**
+     * Copies a mcfunction file from one location to another within the pack.
+     * @param source The ResourceLocation of the source mcfunction file.
+     * @param destination The ResourceLocation of the destination mcfunction file.
+     * @throws IOException if the source or destination path is invalid, or an I/O error occurs while copying the file.
+     */
+    public void copy(ResourceLocation source, ResourceLocation destination) throws IOException {
+        prepareTransfer(source, destination, Files::copy);
+    }
+
+    /**
+     * Moves a mcfunction file from one location to another within the pack.
+     * @param source The ResourceLocation of the source mcfunction file.
+     * @param destination The ResourceLocation of the destination mcfunction file.
+     * @throws IOException if the source or destination path is invalid, or an I/O error occurs while moving the file.
+     */
+    public void move(ResourceLocation source, ResourceLocation destination) throws IOException {
+        prepareTransfer(source, destination, Files::move);
+    }
+
+    @FunctionalInterface
+    private interface IOBiConsumer<T, U> {
+        void accept(T t, U u) throws IOException;
+    }
 }
