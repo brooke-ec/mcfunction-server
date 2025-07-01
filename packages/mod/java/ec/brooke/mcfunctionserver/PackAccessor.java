@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Wrapper for accessing and managing a datapack's mcfunction files.
@@ -79,7 +80,7 @@ public class PackAccessor {
      * @param path The Path to validate.
      * @return true if the path is valid, false otherwise.
      */
-    public boolean validatePath(Path path) {
+    public boolean pathValid(Path path) {
         return path.toAbsolutePath().normalize().startsWith(root);
     }
 
@@ -91,7 +92,7 @@ public class PackAccessor {
      */
     public InputStream get(ResourceLocation location) throws FileNotFoundException {
         Path path = getPath(location);
-        if (validatePath(path)) return new FileInputStream(path.toFile());
+        if (pathValid(path)) return new FileInputStream(path.toFile());
         else throw new FileNotFoundException("File not found or path is invalid: " + path);
     }
 
@@ -104,11 +105,30 @@ public class PackAccessor {
      */
     public void put(ResourceLocation location, InputStream content) throws IOException {
         Path path = getPath(location);
-        if (!validatePath(path)) throw new FileNotFoundException("File not found or path is invalid: " + path);
+        if (!pathValid(path)) throw new FileNotFoundException("Path is invalid: " + path);
 
         FileUtil.createDirectoriesSafe(path.getParent());
         try (OutputStream out = new FileOutputStream(path.toFile())) {
             content.transferTo(out);
+        }
+    }
+
+    /**
+     * Deletes a specific mcfunction file from the pack.
+     * @param location The ResourceLocation of the mcfunction file to delete.
+     * @throws IOException if the file does not exist, the path is invalid, or an I/O error occurs while deleting the file.
+     */
+    public void delete(ResourceLocation location) throws IOException {
+        Path path = getPath(location);
+        if (!pathValid(path) || !Files.exists(path)) throw new FileNotFoundException("File not found or path is invalid: " + path);
+        if (!path.toFile().delete()) throw new IOException("Failed to delete file: " + path);
+
+        while (true) {
+            path = path.getParent();
+            try (Stream<Path> files = Files.list(path)) {
+                if (path.equals(root) || files.findFirst().isPresent()) break;
+                boolean ignored = path.toFile().delete();
+            }
         }
     }
 }

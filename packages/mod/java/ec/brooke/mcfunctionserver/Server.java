@@ -30,6 +30,7 @@ public class Server {
                     path("/file/<path>", () -> {
                         get(this::read);
                         put(this::write);
+                        delete(this::remove);
                     });
                 });
             });
@@ -58,5 +59,12 @@ public class Server {
             ctx.status(201);
         }
         catch (FileNotFoundException ignored) { ctx.status(403); }
+    }
+
+    private void remove(Context ctx) throws IOException {
+        try {
+            accessor.delete(parsePath(ctx));
+            ctx.status(204);
+        } catch (FileNotFoundException ignored) { ctx.status(404); }
     }
 }
