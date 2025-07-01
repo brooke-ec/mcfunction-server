@@ -62,7 +62,7 @@ public class ModConfig {
     private static class InetSocketAddressAdapter extends TypeAdapter<InetSocketAddress> {
         @Override
         public void write(JsonWriter out, InetSocketAddress value) throws IOException {
-            out.value(value.toString());
+            out.value(value.getHostString() + ":" + value.getPort());
         }
 
         @Override
