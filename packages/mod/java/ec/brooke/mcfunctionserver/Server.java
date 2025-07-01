@@ -7,7 +7,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.io.*;
 import java.util.Comparator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
@@ -29,7 +28,7 @@ public class Server {
             config.http.asyncTimeout = 10_000L;
             config.showJavalinBanner = false;
             config.staticFiles.add("/public");
-            config.router.apiBuilder(() -> {
+            config.router.apiBuilder(() ->
                 path("/api", () -> {
                     get("/index", this::index);
                     path("/file/<path>", () -> {
@@ -38,8 +37,8 @@ public class Server {
                         delete(this::remove);
                         patch(this::transfer);
                     });
-                });
-            });
+                }
+            ));
         }).start(Mod.CONFIG.address.getHostString(), Mod.CONFIG.address.getPort());
     }
 
