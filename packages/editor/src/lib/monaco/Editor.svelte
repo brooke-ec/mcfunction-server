@@ -1,5 +1,5 @@
 <script lang="ts" module>
-	let editor: import("monaco-editor").editor.IStandaloneCodeEditor | null = null;
+	export let editor: import("monaco-editor").editor.IStandaloneCodeEditor | null = null;
 	let monaco: typeof import("monaco-editor") | null = null;
 </script>
 

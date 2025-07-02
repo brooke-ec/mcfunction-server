@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Tree, TreeItem } from "melt/builders";
+	import { showContextmenu } from "$lib/monaco";
 	import { slide } from "svelte/transition";
 	import NodeList from "./NodeList.svelte";
 
@@ -16,11 +17,22 @@
 		else if (node.expanded) return level ? folderOpen : namespaceOpen;
 		else return level ? folderClosed : namespaceClosed;
 	}
+
+	function oncontextmenu(e: MouseEvent) {
+		e.preventDefault();
+		showContextmenu(e, [
+			{
+				id: "copy-file",
+				label: "Copy File",
+				run: async () => alert("Copy File"),
+			},
+		]);
+	}
 </script>
 
 {#each children as node}
 	<li style="list-style-type: none">
-		<button {...node.attrs}>
+		<button {...node.attrs} {oncontextmenu}>
 			{#each { length: level }}<span class="indent"></span>{/each}
 			<span class="icon" style="background-image: url({icon(node)});"></span>
 			<span class="label">{node.id.split("/").pop()}</span>

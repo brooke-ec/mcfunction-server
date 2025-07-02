@@ -1,4 +1,3 @@
-export * from "./Editor.svelte";
-
+export { showContextmenu } from "./menu";
 import Editor from "./Editor.svelte";
 export default Editor;
