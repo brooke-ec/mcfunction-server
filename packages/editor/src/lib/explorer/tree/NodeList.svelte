@@ -23,8 +23,14 @@
 		showContextmenu(e, [
 			{
 				id: "copy-file",
-				label: "Copy File",
+				label: "Copy",
 				run: async () => alert("Copy File"),
+			},
+			"separator",
+			{
+				id: "copy-path",
+				label: "Copy Function Path",
+				run: async () => alert("Copy Path"),
 			},
 		]);
 	}
