@@ -21,4 +21,10 @@
 		flex-grow: 1;
 		overflow: hidden;
 	}
+
+	:global(body) {
+		overflow: hidden;
+		max-width: 100vw;
+		max-height: 100vh;
+	}
 </style>

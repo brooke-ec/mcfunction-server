@@ -1,5 +1,5 @@
 <script lang="ts">
-	import NodeList from "./NodeList.svelte";
+	import Node from "./Node.svelte";
 	import { Tree } from "melt/builders";
 	import items from "./test.json";
 
@@ -7,14 +7,5 @@
 </script>
 
 <div {...attrs}>
-	<p class="title">FUNCTIONS</p>
-	<NodeList {children} />
+	<Node node={children[0]} />
 </div>
-
-<style lang="scss">
-	.title {
-		padding-left: 10px;
-		font-weight: bold;
-		font-size: 14px;
-	}
-</style>
