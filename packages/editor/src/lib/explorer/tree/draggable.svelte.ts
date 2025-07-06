@@ -16,7 +16,7 @@ export const getTarget = () => state?.target ?? null;
 
 export const pickup: (id: string, disabled?: boolean) => Attachment<HTMLElement> = (id, disabled) => (element) => {
 	function down(e: PointerEvent) {
-		if (!disabled)
+		if (!disabled && e.button == 0)
 			state = {
 				downpos: { x: e.clientX, y: e.clientY },
 				dragging: false,
