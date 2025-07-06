@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getId, getTarget, pickup, sticky } from "./draggable.svelte";
+	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
 	import type { Tree, TreeItem } from "melt/builders";
 	import { showContextmenu } from "$lib/monaco";
 	import { slide } from "svelte/transition";
@@ -37,7 +37,7 @@
 	}
 </script>
 
-{#if getId() == node.id}
+{#if getSource() == node.id}
 	<div {@attach sticky} class="dragging">{label}</div>
 {/if}
 
@@ -46,7 +46,7 @@
 	class:target={getTarget() == node.id}
 	data-drop-target={!node.children ? undefined : node.id}
 >
-	<button class:item={!getId()} {...node.attrs} {oncontextmenu} {@attach pickup(node.id)}>
+	<button class:item={!getSource()} {...node.attrs} {oncontextmenu} {@attach pickup(node.id, level == -1)}>
 		{#if level == -1}
 			<p class="title">FUNCTIONS</p>
 		{:else}
@@ -95,6 +95,10 @@
 			padding: 1px 0 1px 5px;
 			user-select: none;
 		}
+	}
+
+	button:has(.title) {
+		cursor: default;
 
 		.title {
 			text-transform: uppercase;

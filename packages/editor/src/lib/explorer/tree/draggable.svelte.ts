@@ -8,60 +8,43 @@ interface Point {
 	y: number;
 }
 
-let startpos: Point | null = null;
-let current = $state<string | null>(null);
-let dragging = $state(false);
-let target = $state<string | null>(null);
+let state = $state<{ downpos: Point; source: string; dragging: boolean; target: string | null } | null>(null);
+let position = $state<Point>({ x: 0, y: 0 });
 
-export const getId = () => (dragging ? current : null);
-export const getTarget = () => target;
+export const getSource = () => (state?.dragging ? state.source : null);
+export const getTarget = () => state?.target ?? null;
 
-export const pickup: (id: string) => Attachment<HTMLElement> = (id) => (element) => {
-	function move(e: PointerEvent) {
-		if (!startpos || current != id) return;
-
-		if (dragging) {
-			const found =
-				document
-					.elementFromPoint(e.clientX, e.clientY)
-					?.closest("[data-drop-target]")
-					?.getAttribute("data-drop-target") ?? null;
-			target = found?.endsWith(id) ? null : found;
-		} else {
-			const distance = Math.abs(e.clientX - startpos.x) + Math.abs(e.clientY - startpos.y);
-			if (distance > PICKUP_THRESHOLD) dragging = true;
-		}
-	}
-
+export const pickup: (id: string, disabled?: boolean) => Attachment<HTMLElement> = (id, disabled) => (element) => {
 	function down(e: PointerEvent) {
-		current = id;
-		startpos = {
-			x: e.clientX,
-			y: e.clientY,
-		};
+		if (!disabled)
+			state = {
+				downpos: { x: e.clientX, y: e.clientY },
+				dragging: false,
+				target: null,
+				source: id,
+			};
 	}
 
-	function up(e: PointerEvent) {
-		current = null;
-		startpos = null;
-		dragging = false;
-		target = null;
-	}
-
-	window.addEventListener("pointermove", move, true);
 	element.addEventListener("pointerdown", down, true);
-	window.addEventListener("pointerup", up, true);
-
-	return () => {
-		window.removeEventListener("pointermove", move);
-		element.removeEventListener("pointerdown", down);
-		window.removeEventListener("pointerup", up);
-	};
+	return () => element.removeEventListener("pointerdown", down);
 };
 
-let position = $state<Point>({ x: 0, y: 0 });
-const move = (e: PointerEvent) => (position = { x: e.clientX, y: e.clientY });
-if (browser) window.addEventListener("pointermove", move, true);
+function move(e: PointerEvent) {
+	position = { x: e.clientX, y: e.clientY };
+
+	if (!state) return;
+	else if (state.dragging) {
+		const found =
+			document
+				.elementFromPoint(e.clientX, e.clientY)
+				?.closest("[data-drop-target]")
+				?.getAttribute("data-drop-target") ?? null;
+		state.target = found?.endsWith(state.source) ? null : found;
+	} else {
+		const distance = Math.abs(e.clientX - state.downpos.x) + Math.abs(e.clientY - state.downpos.y);
+		if (distance > PICKUP_THRESHOLD) state.dragging = true;
+	}
+}
 
 export const sticky: Attachment<HTMLElement> = (element) => {
 	$effect(() => {
@@ -70,3 +53,10 @@ export const sticky: Attachment<HTMLElement> = (element) => {
 		element.style.top = `${position.y - 10}px`;
 	});
 };
+
+const up = (e: PointerEvent) => (state = null);
+
+if (browser) {
+	window.addEventListener("pointermove", move, true);
+	window.addEventListener("pointerup", up, true);
+}
