@@ -13,6 +13,7 @@
 
 	let { node, level = -1 }: { node: Tree<TreeItem>["children"][number]; level?: number } = $props();
 	let label = $derived(node.id.split("/")[0]);
+	let isTitle = $derived(level == -1);
 	let icon = $derived.by(() => {
 		if (!node.children) return mcfunction;
 		else if (node.expanded) return level ? folderOpen : namespaceOpen;
@@ -46,15 +47,30 @@
 	class:target={getTarget() == node.id}
 	data-drop-target={!node.children ? undefined : node.id}
 >
-	<button class:item={!getSource()} {...node.attrs} {oncontextmenu} {@attach pickup(node.id, level == -1)}>
-		{#if level == -1}
-			<p class="title">FUNCTIONS</p>
-		{:else}
-			{#each { length: level }}<span class="indent"></span>{/each}
-			<span class="icon" style="background-image: url({icon});"></span>
-			<span class="label">{label}</span>
+	<div style="display: flex;">
+		<button
+			class:passive={!!getSource() || isTitle}
+			{@attach pickup(node.id, isTitle)}
+			{...node.attrs}
+			{oncontextmenu}
+			class="item"
+		>
+			{#if isTitle}
+				<p class="title">FUNCTIONS</p>
+			{:else}
+				{#each { length: level }}<span class="indent"></span>{/each}
+				<span class="icon" style="background-image: url({icon});"></span>
+				<span class="label">{label}</span>
+			{/if}
+		</button>
+		{#if isTitle}
+			<span class="actions">
+				<button class="codicon codicon-new-file" aria-label="New File"></button>
+				<button class="codicon codicon-new-folder" aria-label="New Folder"></button>
+				<button class="codicon codicon-refresh" aria-label="New Folder"></button>
+			</span>
 		{/if}
-	</button>
+	</div>
 	{#if node.children && (node.expanded || level < 0)}
 		<ol transition:slide={{ duration: 150 }}>
 			{#each node.children as child}
@@ -68,13 +84,17 @@
 	button {
 		transition: background-color 150ms ease-in-out;
 		background-color: transparent;
-		padding: 0 0 0 10px;
-		text-align: left;
 		font-size: 14px;
+		cursor: default;
 		color: inherit;
-		display: flex;
 		outline: none;
 		border: none;
+	}
+
+	.item {
+		padding: 0 0 0 10px;
+		text-align: left;
+		display: flex;
 		width: 100%;
 
 		.indent {
@@ -97,17 +117,26 @@
 		}
 	}
 
-	button:has(.title) {
-		cursor: default;
+	.title {
+		text-transform: uppercase;
+		font-weight: bold;
+		font-size: 14px;
+	}
 
-		.title {
-			text-transform: uppercase;
-			font-weight: bold;
-			font-size: 14px;
+	.actions {
+		display: flex;
+		gap: 2px;
+
+		button {
+			color: var(--vscode-icon-foreground);
+			border-radius: 5px;
+			padding: 3px;
 		}
 	}
 
-	.item:not(:has(.title)) {
+	button:not(.passive) {
+		cursor: pointer;
+
 		&:hover,
 		&:focus {
 			background-color: var(--vscode-list-hoverBackground);
@@ -131,6 +160,6 @@
 	}
 
 	.target {
-		background-color: var(--vscode-minimapSlider-background) !important;
+		background-color: var(--vscode-minimapSlider-background);
 	}
 </style>
