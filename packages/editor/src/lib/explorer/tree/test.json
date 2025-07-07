@@ -1,19 +1,14 @@
 [
 	{
-		"id": "/",
+		"id": "doc",
 		"children": [
+			{ "id": "party_popper/doc", "children": [{ "id": "use/party_popper/doc" }] },
 			{
-				"id": "doc",
+				"id": "alcubierre_drive/doc",
 				"children": [
-					{ "id": "party_popper/doc", "children": [{ "id": "use/party_popper/doc" }] },
-					{
-						"id": "alcubierre_drive/doc",
-						"children": [
-							{ "id": "use/alcubierre_drive/doc" },
-							{ "id": "fail/alcubierre_drive/doc" },
-							{ "id": "success/alcubierre_drive/doc" }
-						]
-					}
+					{ "id": "use/alcubierre_drive/doc" },
+					{ "id": "fail/alcubierre_drive/doc" },
+					{ "id": "success/alcubierre_drive/doc" }
 				]
 			}
 		]

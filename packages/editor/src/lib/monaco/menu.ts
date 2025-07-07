@@ -4,8 +4,8 @@ import { editor } from "./Editor.svelte";
 const CONTRIBUTION_ID = "editor.contrib.contextmenu";
 
 export type MenuAction = {
-	id: string;
 	label: string;
+	enabled?: boolean;
 	run: () => Promise<void>;
 };
 
@@ -27,13 +27,13 @@ export function showContextmenu(anchor: Anchor, actions: (MenuAction | "separato
 		actions.map((o) => {
 			if (o === "separator") return new Separator();
 			return {
-				id: `custom.${o.id}`,
+				id: `custom.${o.label.toLowerCase()}`,
 				run: o.run,
-				enabled: true,
 				label: o.label,
 				alias: o.label,
 				metadata: undefined,
 				isSupported: () => true,
+				enabled: o.enabled ?? true,
 			};
 		}),
 		anchor,

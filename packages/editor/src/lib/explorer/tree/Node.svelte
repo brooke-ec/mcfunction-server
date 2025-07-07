@@ -10,6 +10,8 @@
 	import folderOpen from "mc-dp-icons/fileicons/imgs/folder_open.svg?no-inline";
 	import namespaceClosed from "mc-dp-icons/fileicons/imgs/namespace.svg?no-inline";
 	import namespaceOpen from "mc-dp-icons/fileicons/imgs/namespace_open.svg?no-inline";
+	import { newFile, select } from "./Tree.svelte";
+	import { refresh } from "./model.svelte";
 
 	let { node, level = -1 }: { node: Tree<TreeItem>["children"][number]; level?: number } = $props();
 	let label = $derived(node.id.split("/")[0]);
@@ -22,17 +24,11 @@
 
 	function oncontextmenu(e: MouseEvent) {
 		e.preventDefault();
+		select(node.id);
 		showContextmenu(e, [
 			{
-				id: "copy-file",
-				label: "Copy",
-				run: async () => alert("Copy File"),
-			},
-			"separator",
-			{
-				id: "copy-path",
-				label: "Copy Function Path",
-				run: async () => alert("Copy Path"),
+				label: "New Function...",
+				run: async () => newFile(),
 			},
 		]);
 	}
@@ -65,9 +61,9 @@
 		</button>
 		{#if isTitle}
 			<span class="actions">
-				<button class="codicon codicon-new-file" aria-label="New File"></button>
+				<button class="codicon codicon-new-file" aria-label="New File" onclick={newFile}></button>
 				<button class="codicon codicon-new-folder" aria-label="New Folder"></button>
-				<button class="codicon codicon-refresh" aria-label="New Folder"></button>
+				<button class="codicon codicon-refresh" aria-label="Refresh" onclick={refresh}></button>
 			</span>
 		{/if}
 	</div>
