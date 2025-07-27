@@ -15,15 +15,24 @@
 	import namespaceOpen from "mc-dp-icons/fileicons/imgs/namespace_open.svg?no-inline";
 
 	let { node, level = -1 }: { node: Tree<ModelNode>["children"][number]; level?: number } = $props();
+
+	let renaming = $derived(renamingId() == node.id);
 	let label = $derived(node.id.split("/")[0]);
 	let isTitle = $derived(level == -1);
+	let expanded = $derived(node.children?.length && (node.expanded || isTitle));
+
 	let icon = $derived.by(() => {
 		if (!node.children) return mcfunction;
-		else if (node.expanded) return level ? folderOpen : namespaceOpen;
+		else if (expanded) return level ? folderOpen : namespaceOpen;
 		else return level ? folderClosed : namespaceClosed;
 	});
 
-	let renaming = $derived(renamingId() == node.id);
+	let children = $derived.by(() =>
+		node.children?.toSorted((a, b) => {
+			if (a.item.isDirectory() !== b.item.isDirectory()) return a.item.isDirectory() ? -1 : 1;
+			return a.item.name.localeCompare(b.item.name);
+		}),
+	);
 
 	function oncontextmenu(e: MouseEvent) {
 		e.preventDefault();
@@ -44,7 +53,7 @@
 <li
 	style="list-style-type: none"
 	class:target={getTarget() == node.id}
-	data-drop-target={!node.children ? undefined : node.id}
+	data-drop-target={!children ? undefined : node.id}
 >
 	<div style="display: flex;">
 		<button
@@ -77,9 +86,9 @@
 			</span>
 		{/if}
 	</div>
-	{#if node.children && (node.expanded || level < 0)}
+	{#if children && expanded}
 		<ol transition:slide={{ duration: 150 }}>
-			{#each node.children as child}
+			{#each children as child}
 				<Node node={child} level={level + 1} />
 			{/each}
 		</ol>

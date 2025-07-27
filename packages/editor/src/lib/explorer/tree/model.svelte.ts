@@ -10,10 +10,10 @@ export type ModelFunction = ModelNode & { children: undefined; parent: ModelNode
 
 export class ModelNode implements TreeItem {
 	public name = $state<string>("");
-	public parent = $state<ModelNode>();
+	public parent = $state<ModelDirectory>();
 	public children = $state<ModelNode[]>();
 
-	private constructor(name: string, parent: ModelNode | undefined, children: boolean) {
+	private constructor(name: string, parent: ModelDirectory | undefined, children: boolean) {
 		this.name = name;
 		this.parent = parent;
 		this.children = children ? [] : undefined;
