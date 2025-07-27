@@ -24,18 +24,23 @@
 		}
 	}
 
-	export async function newFunction() {
+	export const rename = (id: string) => new Promise<string>((submit) => (renaming = { id, submit }));
+
+	async function create(factory: (parent: ModelNode) => ModelNode) {
 		if (!tree?.selected) throw new Error("No file selected");
 		let parent = model.resolve(tree.selected);
 		if (parent.isFunction()) parent = parent.parent;
 
 		expand(parent.id);
-		const result = parent.createFunction("");
+		const result = factory(parent);
 
-		const name = await new Promise<string>((submit) => (renaming = { id: result.id, submit }));
+		const name = await rename(result.id);
 		if (!name) result.delete();
 		else result.name = name;
 	}
+
+	export const createFunction = () => create((parent) => parent.createFunction(""));
+	export const createDirectory = () => create((parent) => parent.createDirectory(""));
 
 	export const refresh = () => model.refresh();
 </script>

@@ -1,6 +1,6 @@
 <script lang="ts">
+	import { createFunction, createDirectory, renamingId, select, refresh } from "./Tree.svelte";
 	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
-	import { newFunction, renamingId, select, refresh } from "./Tree.svelte";
 	import RenameInput from "./RenameInput.svelte";
 	import { showContextmenu } from "$lib/monaco";
 	import { slide } from "svelte/transition";
@@ -31,7 +31,7 @@
 		showContextmenu(e, [
 			{
 				label: "New Function...",
-				run: newFunction,
+				run: createFunction,
 			},
 		]);
 	}
@@ -71,8 +71,8 @@
 		</button>
 		{#if isTitle}
 			<span class="actions">
-				<button class="codicon codicon-new-file" aria-label="New File" onclick={newFunction}></button>
-				<button class="codicon codicon-new-folder" aria-label="New Folder"></button>
+				<button class="codicon codicon-new-file" aria-label="New File" onclick={createFunction}></button>
+				<button class="codicon codicon-new-folder" aria-label="New Folder" onclick={createDirectory}></button>
 				<button class="codicon codicon-refresh" aria-label="Refresh" onclick={refresh}></button>
 			</span>
 		{/if}
