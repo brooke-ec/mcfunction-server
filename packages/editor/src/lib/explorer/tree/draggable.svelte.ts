@@ -1,5 +1,6 @@
 import { browser } from "$app/environment";
 import type { Attachment } from "svelte/attachments";
+import { select } from "./Tree.svelte";
 
 const PICKUP_THRESHOLD = 10;
 
@@ -42,7 +43,10 @@ function move(e: PointerEvent) {
 		state.target = found?.endsWith(state.source) ? null : found;
 	} else {
 		const distance = Math.abs(e.clientX - state.downpos.x) + Math.abs(e.clientY - state.downpos.y);
-		if (distance > PICKUP_THRESHOLD) state.dragging = true;
+		if (distance > PICKUP_THRESHOLD) {
+			state.dragging = true;
+			select(state.source);
+		}
 	}
 }
 

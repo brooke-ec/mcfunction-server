@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
-	import type { Tree, TreeItem } from "melt/builders";
+	import { newFunction, renamingId, select, refresh } from "./Tree.svelte";
+	import RenameInput from "./RenameInput.svelte";
 	import { showContextmenu } from "$lib/monaco";
 	import { slide } from "svelte/transition";
+	import type { Tree } from "melt/builders";
+	import { ModelNode } from "./model.svelte";
 	import Node from "./Node.svelte";
 
 	import folderClosed from "mc-dp-icons/fileicons/imgs/folder.svg?no-inline";
@@ -10,10 +13,8 @@
 	import folderOpen from "mc-dp-icons/fileicons/imgs/folder_open.svg?no-inline";
 	import namespaceClosed from "mc-dp-icons/fileicons/imgs/namespace.svg?no-inline";
 	import namespaceOpen from "mc-dp-icons/fileicons/imgs/namespace_open.svg?no-inline";
-	import { newFile, select } from "./Tree.svelte";
-	import { refresh } from "./model.svelte";
 
-	let { node, level = -1 }: { node: Tree<TreeItem>["children"][number]; level?: number } = $props();
+	let { node, level = -1 }: { node: Tree<ModelNode>["children"][number]; level?: number } = $props();
 	let label = $derived(node.id.split("/")[0]);
 	let isTitle = $derived(level == -1);
 	let icon = $derived.by(() => {
@@ -22,13 +23,15 @@
 		else return level ? folderClosed : namespaceClosed;
 	});
 
+	let renaming = $derived(renamingId() == node.id);
+
 	function oncontextmenu(e: MouseEvent) {
 		e.preventDefault();
 		select(node.id);
 		showContextmenu(e, [
 			{
 				label: "New Function...",
-				run: async () => newFile(),
+				run: newFunction,
 			},
 		]);
 	}
@@ -45,9 +48,9 @@
 >
 	<div style="display: flex;">
 		<button
+			{@attach pickup(node.id, isTitle || renaming)}
 			class:passive={!!getSource() || isTitle}
-			{@attach pickup(node.id, isTitle)}
-			{...node.attrs}
+			{...renaming ? {} : node.attrs}
 			{oncontextmenu}
 			class="item"
 		>
@@ -56,12 +59,19 @@
 			{:else}
 				{#each { length: level }}<span class="indent"></span>{/each}
 				<span class="icon" style="background-image: url({icon});"></span>
-				<span class="label">{label}</span>
+				{#if renaming}
+					<RenameInput
+						{label}
+						blacklist={node.siblings.map((s) => s.id.split("/")[0]).filter((l) => l != label)}
+					/>
+				{:else}
+					<span class="label">{label}</span>
+				{/if}
 			{/if}
 		</button>
 		{#if isTitle}
 			<span class="actions">
-				<button class="codicon codicon-new-file" aria-label="New File" onclick={newFile}></button>
+				<button class="codicon codicon-new-file" aria-label="New File" onclick={newFunction}></button>
 				<button class="codicon codicon-new-folder" aria-label="New Folder"></button>
 				<button class="codicon codicon-refresh" aria-label="Refresh" onclick={refresh}></button>
 			</span>
@@ -104,7 +114,7 @@
 			background-size: contain;
 
 			min-height: 16px;
-			width: 16px;
+			min-width: 16px;
 		}
 
 		.label {

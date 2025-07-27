@@ -15,7 +15,7 @@
 		"@sveltejs/vite-plugin-svelte": "^5.1.0",
 		"greset": "^2.0.0",
 		"mc-dp-icons": "github:FuncFusion/mc-dp-icons",
-		"melt": "^0.36.0",
+		"melt": "^0.38.0",
 		"monaco-editor": "^0.52.2",
 		"monaco-editor-textmate": "^4.0.0",
 		"monaco-textmate": "^3.0.1",

@@ -1,24 +1,51 @@
 <script lang="ts" module>
-	import { Tree, type TreeItem } from "melt/builders";
-	import * as model from "./model.svelte";
+	import { Tree } from "melt/builders";
+	import { ModelNode, popl, type ModelRoot } from "./model.svelte";
 
-	let tree = $state<Tree<TreeItem> | null>(null);
+	let model = $state<ModelRoot>(ModelNode.create());
+
+	// svelte-ignore non_reactive_update
+	let tree: Tree<ModelNode> | null = null;
 
 	export const select = (id: string) => tree?.select(id);
 
-	export function newFile() {
-		if (!tree?.selected) throw new Error("No file selected");
-		model.newFile("new_function", tree.selected);
+	let renaming = $state<{ id: string; submit: (value: string) => void } | null>(null);
+	export const renamingId = () => renaming?.id ?? null;
+	export function submitRename(value: string) {
+		renaming?.submit(value);
+		renaming = null;
 	}
+
+	export function expand(id: string | null) {
+		if (!tree) throw new Error("Tree not initialized");
+		while (id !== null) {
+			tree.expand(id);
+			id = popl(id).remaining;
+		}
+	}
+
+	export async function newFunction() {
+		if (!tree?.selected) throw new Error("No file selected");
+		let parent = model.resolve(tree.selected);
+		if (parent.isFunction()) parent = parent.parent;
+
+		expand(parent.id);
+		const result = parent.createFunction("");
+
+		const name = await new Promise<string>((submit) => (renaming = { id: result.id, submit }));
+		if (!name) result.delete();
+		else result.name = name;
+	}
+
+	export const refresh = () => model.refresh();
 </script>
 
 <script lang="ts">
 	import Node from "./Node.svelte";
-	import { structure } from "./model.svelte";
+	import { onMount } from "svelte";
 
-	$effect(() => {
-		tree = new Tree({ items: structure });
-	});
+	tree = new Tree({ items: [model] });
+	onMount(refresh);
 </script>
 
 {#if tree}

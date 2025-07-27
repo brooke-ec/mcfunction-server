@@ -1,40 +1,107 @@
 import type { TreeItem } from "melt/builders";
+import test from "./test.json";
 
-type TreeDirectory = TreeItem & { children: TreeItem[] };
+//? Filesystem Model paths/locations/ids are reversed from traditional paths.
+// For example "namespace/directory/function" is represented as "function/directory/namespace".
 
-let state = $state<TreeDirectory[]>([{ id: "/", children: [] }]);
-export const structure = () => state;
+export type ModelDirectory = ModelNode & { children: ModelNode[] };
+export type ModelRoot = ModelDirectory & { parent: undefined };
+export type ModelFunction = ModelNode & { children: undefined; parent: ModelNode };
 
-export async function refresh() {
-	state[0].children = (await import("./test.json")).default;
-}
+export class ModelNode implements TreeItem {
+	public name = $state<string>("");
+	public parent = $state<ModelNode>();
+	public children = $state<ModelNode[]>();
 
-export function findDirectory(location: string): TreeDirectory {
-	if (location === "/") return state[0];
-
-	const path = location.split("/").reverse();
-	let current: TreeItem = state[0];
-	let parent = current;
-
-	for (const segment of path) {
-		if (!current.children) throw new Error(`Directory at '${location}' not found`);
-		const found = current.children
-			.filter((child) => child.id.split("/")[0] == segment)
-			.sort((a, b) => Number(a.children) - Number(b.children))[0];
-		if (!found) throw new Error(`'${location}' not found`);
-		parent = current;
-		current = found;
+	private constructor(name: string, parent: ModelNode | undefined, children: boolean) {
+		this.name = name;
+		this.parent = parent;
+		this.children = children ? [] : undefined;
 	}
 
-	// @ts-ignore
-	return current.children ? current : parent;
+	public static create(): ModelRoot {
+		return new ModelNode("", undefined, true) as ModelRoot;
+	}
+
+	public get id(): string {
+		if (!this.parent) return this.name;
+		return `${this.name}/${this.parent.id}`;
+	}
+
+	public isFunction(): this is ModelFunction {
+		return this.children === undefined;
+	}
+
+	public isDirectory(): this is ModelDirectory {
+		return this.children !== undefined;
+	}
+
+	public isRoot(): this is ModelRoot {
+		return this.parent === undefined && this.isDirectory();
+	}
+
+	public resolve(path: string): ModelNode {
+		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
+
+		const { segment, remaining } = popr(path);
+
+		const child = this.children.find((c) => c.name === segment);
+		if (!child) throw new Error(`'${this.id}' has no child '${segment}'`);
+
+		if (remaining) return child.resolve(remaining);
+		else return child;
+	}
+
+	public createFunction(path: string): ModelFunction {
+		const { segment, remaining } = popl(path);
+		if (remaining) return this.createDirectory(remaining).createFunction(segment);
+
+		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
+
+		let child = this.children.find((c) => c.name === segment && c.isFunction()) as ModelFunction | undefined;
+		if (!child) this.children.push((child = new ModelNode(segment, this, false) as ModelFunction));
+		return child;
+	}
+
+	public createDirectory(path: string): ModelDirectory {
+		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
+
+		const { segment, remaining } = popr(path);
+		let child = this.children.find((c) => c.name === segment && c.isDirectory()) as ModelDirectory | undefined;
+		if (!child) this.children.push((child = new ModelNode(segment, this, true) as ModelDirectory));
+
+		if (remaining) return child.createDirectory(remaining);
+		else return child;
+	}
+
+	public delete(): void {
+		if (!this.parent) throw new Error("Cannot delete root node");
+		if (!this.parent.isDirectory()) throw new Error(`'${this.id}' parent is not a directory`);
+
+		const index = this.parent.children.indexOf(this);
+		if (index === -1) throw new Error(`'${this.id}' is not a child of '${this.parent.id}'`);
+
+		this.parent.children.splice(index, 1);
+	}
+
+	public refresh(): void {
+		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
+
+		this.children = [];
+		for (const path of test) this.createFunction(path.split("/").reverse().join("/") + "/");
+	}
 }
 
-export function newFile(name: string, path: string) {
-	const parent = findDirectory(path);
-	const id = `${name}/${parent.id}`;
-	parent.children.push({ id });
-	return id;
+function pop(path: string, pattern: RegExp) {
+	let segment: string | undefined = undefined;
+	const remaining = path.replace(pattern, (_, s) => {
+		segment = s;
+		return "";
+	});
+
+	if (segment === undefined) return { segment: path, remaining: null };
+	else return { segment, remaining };
 }
 
-refresh();
+export const popr = (path: string) => pop(path, /([^\/]*)\/$/);
+export const popl = (path: string) => pop(path, /^([^\/]*)\//);

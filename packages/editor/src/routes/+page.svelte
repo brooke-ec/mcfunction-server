@@ -27,4 +27,8 @@
 		max-width: 100vw;
 		max-height: 100vh;
 	}
+
+	:global(::selection) {
+		background-color: var(--vscode-selection-background);
+	}
 </style>

@@ -29,8 +29,8 @@ importers:
         specifier: github:FuncFusion/mc-dp-icons
         version: https://codeload.github.com/FuncFusion/mc-dp-icons/tar.gz/6ae5e107a13fcf80195994fc946c6f9693f198ea
       melt:
-        specifier: ^0.36.0
-        version: 0.36.0(@floating-ui/dom@1.7.2)(svelte@5.34.9)
+        specifier: ^0.38.0
+        version: 0.38.0(@floating-ui/dom@1.7.2)(svelte@5.34.9)
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2
@@ -769,6 +769,9 @@ packages:
     resolution: {integrity: sha512-78/PXT1wlLLDgTzDs7sjq9hzz0vXD+zn+7wypEe4fXQxCmdmqfGsEPQxmiCSQI3ajFV91bVSsvNtrJRiW6nGng==}
     engines: {node: '>=10'}
 
+  focus-trap@7.6.5:
+    resolution: {integrity: sha512-7Ke1jyybbbPZyZXFxEftUtxFGLMpE2n6A+z//m4CRDlj0hW+o3iYSmh8nFlYMurOiJVDmJRilUQtJr08KfIxlg==}
+
   for-each@0.3.5:
     resolution: {integrity: sha512-dKx12eRCVIzqCxFGplyFKJMPvLEWgmNtUrpTiJIR5u97zEhRG8ySrtboPHZXx7daLxQVrl643cTzbab2tkQjxg==}
     engines: {node: '>= 0.4'}
@@ -954,8 +957,8 @@ packages:
   md5.js@1.3.5:
     resolution: {integrity: sha512-xitP+WxNPcTTOgnTJcrhM0xvdPepipPSf3I8EIpGKeFLjt3PlJLIDG3u8EX53ZIubkb+5U2+3rELYpEhHhzdkg==}
 
-  melt@0.36.0:
-    resolution: {integrity: sha512-lJdUuPvsCZs7zpcL2iSvxerHxv3QuM91FoTbdsliOQ2+J3fR4ADqUN878J4kkQSzzHlWqyedQmEBDP6U3iEWgA==}
+  melt@0.38.0:
+    resolution: {integrity: sha512-fVUZdZSYUeYw4uwZkY+KoxmbVVMY14qEA21wjIR0ELAMlWc/eSeG0JcZn0wSB7dB1JdWo7KsVrZssieiQWSp5A==}
     peerDependencies:
       '@floating-ui/dom': ^1.6.0
       svelte: ^5.30.1
@@ -1008,11 +1011,6 @@ packages:
   nanoid@3.3.11:
     resolution: {integrity: sha512-N8SpfPUnUp1bK+PMYW8qSWdl9U+wwNWI4QKxOYDy9JAro3WMX7p2OeVRF9v+347pnakNevPmiHhNmZ2HbFA76w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
-    hasBin: true
-
-  nanoid@5.1.5:
-    resolution: {integrity: sha512-Ir/+ZpE9fDsNH0hQ3C68uyThDXzYcim2EqcZ8zn8Chtt1iylPT9xXJB0kPCnqzgcEGikO9RxSrh63MsmVCU7Fw==}
-    engines: {node: ^18 || >=20}
     hasBin: true
 
   node-addon-api@7.1.1:
@@ -1276,6 +1274,9 @@ packages:
     resolution: {tarball: https://codeload.github.com/MinecraftCommands/syntax-mcfunction/tar.gz/51eb8bf4ca04355bb89f5538b7331cb0c0f3df2b}
     version: 1.0.1
     engines: {vscode: ^1.81.0}
+
+  tabbable@6.2.0:
+    resolution: {integrity: sha512-Cat63mxsVJlzYvN51JmVXIgNoUokrIaT2zLclCXjRd8boZ0004U4KCs/sToJ75C6sdlByWxpYnb5Boif1VSFew==}
 
   timers-browserify@2.0.12:
     resolution: {integrity: sha512-9phl76Cqm6FhSX9Xe1ZUAMLtm1BLkKj2Qd5ApyWkXzsMRaA7dgr81kf4wJmQf/hAvg8EEyJxDo3du/0KlhPiKQ==}
@@ -2035,6 +2036,10 @@ snapshots:
       locate-path: 6.0.0
       path-exists: 4.0.0
 
+  focus-trap@7.6.5:
+    dependencies:
+      tabbable: 6.2.0
+
   for-each@0.3.5:
     dependencies:
       is-callable: 1.2.7
@@ -2234,12 +2239,12 @@ snapshots:
       inherits: 2.0.4
       safe-buffer: 5.2.1
 
-  melt@0.36.0(@floating-ui/dom@1.7.2)(svelte@5.34.9):
+  melt@0.38.0(@floating-ui/dom@1.7.2)(svelte@5.34.9):
     dependencies:
       '@floating-ui/dom': 1.7.2
       dequal: 2.0.3
+      focus-trap: 7.6.5
       jest-axe: 9.0.0
-      nanoid: 5.1.5
       runed: 0.23.4(svelte@5.34.9)
       svelte: 5.34.9
 
@@ -2283,8 +2288,6 @@ snapshots:
   ms@2.1.3: {}
 
   nanoid@3.3.11: {}
-
-  nanoid@5.1.5: {}
 
   node-addon-api@7.1.1:
     optional: true
@@ -2649,6 +2652,8 @@ snapshots:
       zimmerframe: 1.1.2
 
   syntax-mcfunction@https://codeload.github.com/MinecraftCommands/syntax-mcfunction/tar.gz/51eb8bf4ca04355bb89f5538b7331cb0c0f3df2b: {}
+
+  tabbable@6.2.0: {}
 
   timers-browserify@2.0.12:
     dependencies:
