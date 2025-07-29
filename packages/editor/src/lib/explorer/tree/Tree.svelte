@@ -21,6 +21,7 @@
 		const node = model.resolve(id);
 		const name = await startRename(node.id);
 		node.name = name;
+		select(node.id);
 	}
 
 	// Clipboard functionality
