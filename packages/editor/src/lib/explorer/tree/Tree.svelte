@@ -86,8 +86,9 @@
 	}
 
 	export function paste(source: string, desination: string, move: boolean) {
+		let d = model.resolve(desination);
 		const s = model.resolve(source);
-		const d = model.resolve(desination);
+		if (d.isFunction()) d = d.parent;
 
 		if (s.parent === d) return; // No move needed
 		if (!d.isDirectory()) throw new Error(`'${d.id}' is not a directory`);
