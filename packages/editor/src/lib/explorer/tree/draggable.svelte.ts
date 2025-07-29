@@ -1,7 +1,7 @@
 import type { Attachment } from "svelte/attachments";
-import { move as doMove } from "./Tree.svelte";
 import { browser } from "$app/environment";
 import { select } from "./Tree.svelte";
+import { paste } from "./Tree.svelte";
 
 const PICKUP_THRESHOLD = 10;
 
@@ -60,7 +60,7 @@ export const sticky: Attachment<HTMLElement> = (element) => {
 };
 
 const up = (e: PointerEvent) => {
-	if (state !== null && state.target !== null) doMove(state.source, state.target);
+	if (state !== null && state.target !== null) paste(state.source, state.target, true);
 	state = null;
 };
 

@@ -61,6 +61,10 @@
 				run: async () => setClipboard(node.id, true),
 			},
 			{
+				label: "Copy",
+				run: async () => setClipboard(node.id, false),
+			},
+			{
 				label: "Paste",
 				run: async () => pasteClipboard(node.id),
 			},

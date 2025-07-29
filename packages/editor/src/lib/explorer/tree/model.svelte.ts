@@ -103,6 +103,16 @@ export class ModelNode implements TreeItem {
 		this.parent = destination;
 	}
 
+	public copy(destination: ModelDirectory): ModelNode {
+		if (destination.includes(this.name))
+			throw new Error(`'${destination.id}' already has a child named '${this.name}'`);
+
+		const result = new ModelNode(this.name, destination, this.isDirectory()) as ModelDirectory;
+		for (const child of this.children ?? []) child.copy(result);
+		destination.children.push(result);
+		return result;
+	}
+
 	public includes(node: string | ModelNode) {
 		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
 		if (typeof node === "string") return this.children.some((c) => c.name === node);

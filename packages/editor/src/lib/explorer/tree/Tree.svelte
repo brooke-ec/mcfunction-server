@@ -27,8 +27,8 @@
 
 	export function pasteClipboard(target: string) {
 		if (!clipboard) throw new Error("Clipboard is empty");
-		if (clipboard.move) move(clipboard.source, target);
-		else throw new Error("Not yet implemented");
+		paste(clipboard.source, target, clipboard.move);
+
 		if (clipboard.move) clipboard = null;
 	}
 
@@ -60,7 +60,7 @@
 
 	export const select = (id: string) => tree?.select(id);
 
-	export function move(source: string, desination: string) {
+	export function paste(source: string, desination: string, move: boolean) {
 		const s = model.resolve(source);
 		const d = model.resolve(desination);
 
@@ -68,7 +68,7 @@
 		if (!d.isDirectory()) throw new Error(`'${d.id}' is not a directory`);
 
 		if (d.includes(s.name)) alert(`Destination directory '${d.name}' already has a child named '${s.name}'`);
-		else s.move(d);
+		else move ? s.move(d) : s.copy(d);
 	}
 </script>
 
