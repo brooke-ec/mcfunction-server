@@ -1,13 +1,8 @@
 import { Separator } from "monaco-editor/esm/vs/base/common/actions";
-import { editor } from "./Editor.svelte";
+import type { ActionDescriptor } from "./action";
+import { editor } from "$lib/Editor.svelte";
 
 const CONTRIBUTION_ID = "editor.contrib.contextmenu";
-
-export type MenuAction = {
-	label: string;
-	enabled?: boolean;
-	run: () => Promise<void>;
-};
 
 export type Anchor = { x: number; y: number };
 
@@ -17,23 +12,21 @@ type ContextMenuController = import("monaco-editor").editor.IEditorContribution 
 	_doShowContextMenu: (actions: (IEditorAction | Separator)[], anchor: Anchor) => void;
 };
 
-export function showContextmenu(anchor: Anchor, actions: (MenuAction | "separator")[]) {
+export function showContextmenu(anchor: Anchor, actions: (ActionDescriptor | "separator")[]) {
 	if (!editor) throw new Error("Editor is not initialized");
 
 	const controller = editor.getContribution(CONTRIBUTION_ID) as ContextMenuController | null;
 	if (!controller) throw new Error("Context menu controller not found");
 
 	controller._doShowContextMenu(
-		actions.map((o) => {
-			if (o === "separator") return new Separator();
+		actions.map((action) => {
+			if (action === "separator") return new Separator();
+			const definition = action.definition;
 			return {
-				id: `custom.${o.label.toLowerCase()}`,
-				run: o.run,
-				label: o.label,
-				alias: o.label,
-				metadata: undefined,
-				isSupported: () => true,
-				enabled: o.enabled ?? true,
+				id: definition.id,
+				label: definition.alias,
+				enabled: true,
+				run: definition.run,
 			};
 		}),
 		anchor,

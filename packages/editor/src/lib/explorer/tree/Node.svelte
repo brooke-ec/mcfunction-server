@@ -1,23 +1,14 @@
 <script lang="ts">
+	import { createFunction, createDirectory, renamingId, select, refresh, movingId, canPaste } from "./Tree.svelte";
 	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
+	import type { ActionDescriptor } from "$lib/monaco/action";
 	import RenameInput from "./RenameInput.svelte";
 	import { showContextmenu } from "$lib/monaco";
 	import { slide } from "svelte/transition";
 	import type { Tree } from "melt/builders";
 	import { ModelNode } from "./model.svelte";
+	import * as actions from "$lib/actions";
 	import Node from "./Node.svelte";
-	import {
-		createFunction,
-		createDirectory,
-		renamingId,
-		select,
-		refresh,
-		setClipboard,
-		pasteClipboard,
-		movingId,
-		rename,
-		remove,
-	} from "./Tree.svelte";
 
 	import folderClosed from "mc-dp-icons/fileicons/imgs/folder.svg?no-inline";
 	import mcfunction from "mc-dp-icons/fileicons/imgs/mcf_load.svg?no-inline";
@@ -27,14 +18,14 @@
 
 	let { node, level = -1 }: { node: Tree<ModelNode>["children"][number]; level?: number } = $props();
 
-	let renaming = $derived(renamingId() == node.id);
 	let label = $derived(node.id.split("/")[0]);
-	let isTitle = $derived(level == -1);
-	let expanded = $derived(node.children?.length && (node.expanded || isTitle));
+	let isRoot = $derived(level == -1);
+	let isExpanded = $derived(node.children?.length && (node.expanded || isRoot));
+	let isRenaming = $derived(renamingId() == node.id);
 
 	let icon = $derived.by(() => {
 		if (!node.children) return mcfunction;
-		else if (expanded) return level ? folderOpen : namespaceOpen;
+		else if (isExpanded) return level ? folderOpen : namespaceOpen;
 		else return level ? folderClosed : namespaceClosed;
 	});
 
@@ -48,38 +39,16 @@
 	function oncontextmenu(e: MouseEvent) {
 		e.preventDefault();
 		select(node.id);
-		showContextmenu(e, [
-			{
-				label: "New Function...",
-				run: createFunction,
-			},
-			{
-				label: "New Directory...",
-				run: createDirectory,
-			},
-			"separator",
-			{
-				label: "Cut",
-				run: async () => setClipboard(node.id, true),
-			},
-			{
-				label: "Copy",
-				run: async () => setClipboard(node.id, false),
-			},
-			{
-				label: "Paste",
-				run: async () => pasteClipboard(node.id),
-			},
-			"separator",
-			{
-				label: "Reanme...",
-				run: async () => rename(node.id),
-			},
-			{
-				label: "Delete",
-				run: async () => remove(node.id),
-			},
-		]);
+		const visible: (ActionDescriptor | "separator")[] = [];
+
+		if (children) visible.push(actions.newFunction, actions.newDirectory, "separator");
+		if (!isRoot) visible.push(actions.treeCut, actions.treeCopy);
+		if (children && canPaste()) visible.push(actions.treePaste);
+		if (visible[visible.length - 1] != "separator") visible.push("separator");
+		if (!isRoot) visible.push(actions.treeRename, actions.treeDelete);
+		else visible.push("separator", actions.treeRefresh);
+
+		showContextmenu(e, visible);
 	}
 </script>
 
@@ -95,25 +64,25 @@
 	<div style="display: flex;">
 		<button
 			class:moving={getSource() == node.id || movingId() == node.id}
-			{@attach pickup(node.id, isTitle || renaming)}
-			class:passive={!!getSource() || isTitle}
-			{...renaming ? {} : node.attrs}
+			{@attach pickup(node.id, isRoot || isRenaming)}
+			class:passive={!!getSource() || isRoot}
+			{...isRenaming ? {} : node.attrs}
 			{oncontextmenu}
 			class="item"
 		>
-			{#if isTitle}
+			{#if isRoot}
 				<p class="title">FUNCTIONS</p>
 			{:else}
 				{#each { length: level }}<span class="indent"></span>{/each}
 				<span class="icon" style="background-image: url({icon});"></span>
-				{#if renaming}
+				{#if isRenaming}
 					<RenameInput {label} blacklist={node.item.siblings.map((c) => c.name)} />
 				{:else}
 					<span class="label">{label}</span>
 				{/if}
 			{/if}
 		</button>
-		{#if isTitle}
+		{#if isRoot}
 			<span class="actions">
 				<button class="codicon codicon-new-file" aria-label="New File" onclick={createFunction}></button>
 				<button class="codicon codicon-new-folder" aria-label="New Folder" onclick={createDirectory}></button>
@@ -121,7 +90,7 @@
 			</span>
 		{/if}
 	</div>
-	{#if children && expanded}
+	{#if children && isExpanded}
 		<ol transition:slide={{ duration: 150 }}>
 			{#each children as child (child.id)}
 				<Node node={child} level={level + 1} />
@@ -178,6 +147,7 @@
 	}
 
 	.actions {
+		margin-right: 5px;
 		display: flex;
 		gap: 2px;
 

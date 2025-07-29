@@ -2,16 +2,17 @@
 	import Tree from "./tree";
 </script>
 
-<div class="container">
+<div class="explorer">
 	<Tree />
 </div>
 
 <style lang="scss">
-	.container {
+	.explorer {
 		background-color: var(--vscode-editorActionList-background);
 		color: var(--editorActionList-foreground);
 		padding-top: 10px;
 		overflow-x: auto;
-		width: 20vw;
+		min-width: 20vw;
+		height: 100%;
 	}
 </style>

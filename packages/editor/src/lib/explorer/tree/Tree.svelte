@@ -17,8 +17,8 @@
 
 	const startRename = (id: string) => new Promise<string>((submit) => (renaming = { id, submit }));
 
-	export async function rename(id: string) {
-		const node = model.resolve(id);
+	export async function rename() {
+		const node = model.resolve(selected());
 		const name = await startRename(node.id);
 		node.name = name;
 		select(node.id);
@@ -27,14 +27,15 @@
 	// Clipboard functionality
 	let clipboard = $state<{ source: string; move: boolean } | null>(null);
 	export const movingId = () => (clipboard?.move ? clipboard.source : null);
+	export const canPaste = () => !!clipboard;
 
-	export function setClipboard(source: string, move: boolean) {
-		clipboard = { source, move };
+	export function setClipboard(move: boolean) {
+		clipboard = { source: selected(), move };
 	}
 
-	export function pasteClipboard(target: string) {
+	export function pasteClipboard() {
 		if (!clipboard) throw new Error("Clipboard is empty");
-		paste(clipboard.source, target, clipboard.move);
+		paste(clipboard.source, selected(), clipboard.move);
 
 		if (clipboard.move) clipboard = null;
 	}
@@ -48,8 +49,7 @@
 	}
 
 	async function create(factory: (parent: ModelNode) => ModelNode) {
-		if (tree?.selected === undefined) throw new Error("No file selected");
-		let parent = model.resolve(tree.selected);
+		let parent = model.resolve(selected());
 		if (parent.isFunction()) parent = parent.parent;
 
 		expand(parent.id);
@@ -70,8 +70,16 @@
 
 	export const select = (id: string) => tree?.select(id);
 
-	export function remove(id: string) {
-		const node = model.resolve(id);
+	export function selected() {
+		if (tree?.selected === undefined) throw new Error("No item selected");
+		return tree.selected;
+	}
+
+	export async function remove() {
+		const node = model.resolve(selected());
+
+		if (node.isRoot()) throw new Error("Cannot delete root node");
+
 		if (!confirm(`Are you sure you want to delete '${node.name}'?`)) return;
 		tree?.clearSelection();
 		node.delete();
@@ -95,6 +103,7 @@
 
 	tree = new Tree({ items: [model] });
 	onMount(refresh);
+	tree.select("");
 </script>
 
 {#if tree}
