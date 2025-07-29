@@ -1,5 +1,14 @@
 <script lang="ts">
-	import { createFunction, createDirectory, renamingId, select, refresh } from "./Tree.svelte";
+	import {
+		createFunction,
+		createDirectory,
+		renamingId,
+		select,
+		refresh,
+		setClipboard,
+		pasteClipboard,
+		movingId,
+	} from "./Tree.svelte";
 	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
 	import RenameInput from "./RenameInput.svelte";
 	import { showContextmenu } from "$lib/monaco";
@@ -42,6 +51,19 @@
 				label: "New Function...",
 				run: createFunction,
 			},
+			{
+				label: "New Directory...",
+				run: createDirectory,
+			},
+			"separator",
+			{
+				label: "Cut",
+				run: async () => setClipboard(node.id, true),
+			},
+			{
+				label: "Paste",
+				run: async () => pasteClipboard(node.id),
+			},
 		]);
 	}
 </script>
@@ -57,6 +79,7 @@
 >
 	<div style="display: flex;">
 		<button
+			class:moving={getSource() == node.id || movingId() == node.id}
 			{@attach pickup(node.id, isTitle || renaming)}
 			class:passive={!!getSource() || isTitle}
 			{...renaming ? {} : node.attrs}
@@ -69,10 +92,7 @@
 				{#each { length: level }}<span class="indent"></span>{/each}
 				<span class="icon" style="background-image: url({icon});"></span>
 				{#if renaming}
-					<RenameInput
-						{label}
-						blacklist={node.siblings.map((s) => s.id.split("/")[0]).filter((l) => l != label)}
-					/>
+					<RenameInput {label} blacklist={node.item.siblings.map((c) => c.name)} />
 				{:else}
 					<span class="label">{label}</span>
 				{/if}
@@ -88,7 +108,7 @@
 	</div>
 	{#if children && expanded}
 		<ol transition:slide={{ duration: 150 }}>
-			{#each children as child}
+			{#each children as child (child.id)}
 				<Node node={child} level={level + 1} />
 			{/each}
 		</ol>
@@ -129,6 +149,10 @@
 		.label {
 			padding: 1px 0 1px 5px;
 			user-select: none;
+		}
+
+		&.moving :not(.indent) {
+			opacity: 0.5;
 		}
 	}
 

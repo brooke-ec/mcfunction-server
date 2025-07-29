@@ -28,6 +28,11 @@ export class ModelNode implements TreeItem {
 		return `${this.name}/${this.parent.id}`;
 	}
 
+	public get siblings(): ModelNode[] {
+		if (!this.parent) return [];
+		return this.parent.children.filter((c) => c !== this);
+	}
+
 	public isFunction(): this is ModelFunction {
 		return this.children === undefined;
 	}
@@ -41,6 +46,7 @@ export class ModelNode implements TreeItem {
 	}
 
 	public resolve(path: string): ModelNode {
+		if (path === "") return this;
 		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
 
 		const { segment, remaining } = popr(path);
@@ -82,6 +88,25 @@ export class ModelNode implements TreeItem {
 		if (index === -1) throw new Error(`'${this.id}' is not a child of '${this.parent.id}'`);
 
 		this.parent.children.splice(index, 1);
+	}
+
+	public move(destination: ModelDirectory): void {
+		if (!this.parent) throw new Error("Cannot move root node");
+		if (destination === this.parent) return; // No move needed
+
+		if (destination.includes(this.name))
+			throw new Error(`'${destination.id}' already has a child named '${this.name}'`);
+
+		// Update references to perform the move
+		this.parent.children.splice(this.parent.children.indexOf(this), 1);
+		destination.children.push(this);
+		this.parent = destination;
+	}
+
+	public includes(node: string | ModelNode) {
+		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
+		if (typeof node === "string") return this.children.some((c) => c.name === node);
+		else return this.children.includes(node);
 	}
 
 	public refresh(): void {
