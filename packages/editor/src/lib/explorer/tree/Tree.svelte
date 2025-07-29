@@ -15,7 +15,13 @@
 		renaming = null;
 	}
 
-	export const rename = (id: string) => new Promise<string>((submit) => (renaming = { id, submit }));
+	const startRename = (id: string) => new Promise<string>((submit) => (renaming = { id, submit }));
+
+	export async function rename(id: string) {
+		const node = model.resolve(id);
+		const name = await startRename(node.id);
+		node.name = name;
+	}
 
 	// Clipboard functionality
 	let clipboard = $state<{ source: string; move: boolean } | null>(null);
@@ -48,9 +54,12 @@
 		expand(parent.id);
 		const result = factory(parent);
 
-		const name = await rename(result.id);
+		const name = await startRename(result.id);
 		if (!name) result.delete();
-		else result.name = name;
+		else {
+			result.name = name;
+			select(result.id);
+		}
 	}
 
 	export const createFunction = () => create((parent) => parent.createFunction(""));
@@ -59,6 +68,13 @@
 	export const refresh = () => model.refresh();
 
 	export const select = (id: string) => tree?.select(id);
+
+	export function remove(id: string) {
+		const node = model.resolve(id);
+		if (!confirm(`Are you sure you want to delete '${node.name}'?`)) return;
+		tree?.clearSelection();
+		node.delete();
+	}
 
 	export function paste(source: string, desination: string, move: boolean) {
 		const s = model.resolve(source);

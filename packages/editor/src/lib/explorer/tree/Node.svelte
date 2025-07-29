@@ -1,4 +1,11 @@
 <script lang="ts">
+	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
+	import RenameInput from "./RenameInput.svelte";
+	import { showContextmenu } from "$lib/monaco";
+	import { slide } from "svelte/transition";
+	import type { Tree } from "melt/builders";
+	import { ModelNode } from "./model.svelte";
+	import Node from "./Node.svelte";
 	import {
 		createFunction,
 		createDirectory,
@@ -8,14 +15,9 @@
 		setClipboard,
 		pasteClipboard,
 		movingId,
+		rename,
+		remove,
 	} from "./Tree.svelte";
-	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
-	import RenameInput from "./RenameInput.svelte";
-	import { showContextmenu } from "$lib/monaco";
-	import { slide } from "svelte/transition";
-	import type { Tree } from "melt/builders";
-	import { ModelNode } from "./model.svelte";
-	import Node from "./Node.svelte";
 
 	import folderClosed from "mc-dp-icons/fileicons/imgs/folder.svg?no-inline";
 	import mcfunction from "mc-dp-icons/fileicons/imgs/mcf_load.svg?no-inline";
@@ -67,6 +69,15 @@
 			{
 				label: "Paste",
 				run: async () => pasteClipboard(node.id),
+			},
+			"separator",
+			{
+				label: "Reanme...",
+				run: async () => rename(node.id),
+			},
+			{
+				label: "Delete",
+				run: async () => remove(node.id),
 			},
 		]);
 	}
