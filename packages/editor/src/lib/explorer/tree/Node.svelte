@@ -57,6 +57,7 @@
 {/if}
 
 <li
+	class:root={isRoot}
 	style="list-style-type: none"
 	class:target={getTarget() == node.id}
 	data-drop-target={!children ? undefined : node.id}
@@ -97,9 +98,19 @@
 			{/each}
 		</ol>
 	{/if}
+	{#if isRoot}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div {oncontextmenu} style="height: max-content; flex-grow: 1;"></div>
+	{/if}
 </li>
 
 <style lang="scss">
+	.root {
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+	}
+
 	button {
 		transition: background-color 150ms ease-in-out;
 		background-color: transparent;

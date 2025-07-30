@@ -8,12 +8,13 @@
 	import Explorer from "./explorer/Explorer.svelte";
 	import type { Attachment } from "svelte/attachments";
 	import * as actions from "./actions";
+	import TabList from "./TabList/TabList.svelte";
 
 	const attach: Attachment<HTMLElement> = (element) => {
 		const observer = new ResizeObserver(() => {
 			editor?.layout({
 				width: element.clientWidth * 0.8,
-				height: element.clientHeight,
+				height: element.clientHeight - 35,
 			});
 		});
 
@@ -43,13 +44,20 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <main {@attach attach} tabindex="0">
 	<Explorer />
+	<TabList />
 </main>
 
 <style lang="scss">
 	main {
 		height: 100vh;
-		display: flex;
 		outline: none;
 		width: 100%;
+
+		display: grid;
+		grid-template-columns: repeat(2, auto);
+		grid-template-rows: repeat(2, auto);
+		grid-template-areas:
+			"explorer tablist"
+			"explorer editor";
 	}
 </style>

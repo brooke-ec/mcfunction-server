@@ -108,9 +108,15 @@
 </script>
 
 {#if tree}
-	<div {...tree.root}>
+	<ul class="tree" {...tree.root}>
 		{#if tree.children[0]}
 			<Node node={tree.children[0]} />
 		{/if}
-	</div>
+	</ul>
 {/if}
+
+<style lang="scss">
+	.tree {
+		height: 100%;
+	}
+</style>

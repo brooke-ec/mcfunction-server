@@ -5,7 +5,7 @@ export const newFunction = new ActionDescriptor((monaco) => ({
 	id: "custom.tree.new-function",
 	label: "New Function",
 	alias: "New Function...",
-	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyR],
+	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyM],
 	run: tree.createFunction,
 }));
 

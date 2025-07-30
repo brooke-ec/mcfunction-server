@@ -10,6 +10,7 @@
 	.explorer {
 		background-color: var(--vscode-editorActionList-background);
 		color: var(--editorActionList-foreground);
+		grid-area: explorer;
 		padding-top: 10px;
 		overflow-x: auto;
 		min-width: 20vw;
