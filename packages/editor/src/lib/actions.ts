@@ -5,6 +5,7 @@ export const newFunction = new ActionDescriptor((monaco) => ({
 	id: "custom.tree.new-function",
 	label: "New Function",
 	alias: "New Function...",
+	precondition: "!renaming",
 	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyM],
 	run: tree.createFunction,
 }));
@@ -13,7 +14,8 @@ export const newDirectory = new ActionDescriptor((monaco) => ({
 	id: "custom.tree.new-directory",
 	label: "New Directory",
 	alias: "New Directory...",
-	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyD],
+	precondition: "!renaming",
+	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyK],
 	run: tree.createDirectory,
 }));
 
@@ -21,6 +23,7 @@ export const treeRename = new ActionDescriptor((monaco) => ({
 	id: "custom.tree.rename",
 	label: "Rename Function or Directory",
 	alias: "Rename...",
+	precondition: "!renaming",
 	keybindings: [monaco.KeyCode.F2],
 	run: tree.rename,
 }));
@@ -30,7 +33,7 @@ export const treeDelete = new ActionDescriptor((monaco) => ({
 	label: "Delete Function or Directory",
 	alias: "Delete",
 	keybindings: [monaco.KeyCode.Delete],
-	keybindingContext: "!editorTextFocus",
+	keybindingContext: "!editorTextFocus && !renaming",
 	run: tree.remove,
 }));
 
@@ -39,7 +42,7 @@ export const treeCut = new ActionDescriptor((monaco) => ({
 	label: "Cut Function or Directory",
 	alias: "Cut",
 	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyX],
-	keybindingContext: "!editorTextFocus",
+	keybindingContext: "!editorTextFocus && !renaming",
 	run: () => tree.setClipboard(true),
 }));
 
@@ -48,7 +51,7 @@ export const treeCopy = new ActionDescriptor((monaco) => ({
 	label: "Copy Function or Directory",
 	alias: "Copy",
 	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyC],
-	keybindingContext: "!editorTextFocus",
+	keybindingContext: "!editorTextFocus && !renaming",
 	run: () => tree.setClipboard(false),
 }));
 
@@ -57,7 +60,7 @@ export const treePaste = new ActionDescriptor((monaco) => ({
 	label: "Paste Function or Directory",
 	alias: "Paste",
 	keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV],
-	keybindingContext: "!editorTextFocus",
+	keybindingContext: "!editorTextFocus && !renaming",
 	run: tree.pasteClipboard,
 }));
 

@@ -1,5 +1,6 @@
 <script lang="ts" module>
 	import { ModelNode, popl, type ModelDirectory, type ModelRoot } from "./model.svelte";
+	import { renamingContext } from "$lib/Editor.svelte";
 	import { Tree } from "melt/builders";
 
 	let model = $state<ModelRoot>(ModelNode.create());
@@ -11,11 +12,16 @@
 	let renaming = $state<{ id: string; submit: (value: string) => void } | null>(null);
 	export const renamingId = () => renaming?.id ?? null;
 	export function submitRename(value: string) {
+		renamingContext?.set(false);
 		renaming?.submit(value);
 		renaming = null;
 	}
 
-	const startRename = (id: string) => new Promise<string>((submit) => (renaming = { id, submit }));
+	const startRename = (id: string) =>
+		new Promise<string>((submit) => {
+			renamingContext?.set(true);
+			renaming = { id, submit };
+		});
 
 	export async function rename() {
 		const node = model.resolve(selected());
@@ -81,7 +87,7 @@
 		if (node.isRoot()) throw new Error("Cannot delete root node");
 
 		if (!confirm(`Are you sure you want to delete '${node.name}'?`)) return;
-		tree?.clearSelection();
+		tree?.select("");
 		node.delete();
 	}
 

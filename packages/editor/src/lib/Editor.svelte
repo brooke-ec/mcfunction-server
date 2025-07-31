@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	export let renamingContext: import("monaco-editor").editor.IContextKey<boolean> | null = null;
 	export let editor: import("monaco-editor").editor.IStandaloneCodeEditor | null = null;
 	export let monaco: typeof import("monaco-editor") | null = null;
 </script>
@@ -26,14 +27,16 @@
 				value: placeholder,
 			});
 
+			renamingContext = editor.createContextKey("renaming", false);
+
 			observer.observe(element);
 			for (const action of Object.values(actions)) action.define();
 
-			// editor.createContextKey("editorFocused", false);
 			editor.focus();
 		});
 
 		return () => {
+			monaco?.editor.getModels().forEach((m) => m.dispose());
 			observer.unobserve(element);
 			editor?.dispose();
 			editor = null;
