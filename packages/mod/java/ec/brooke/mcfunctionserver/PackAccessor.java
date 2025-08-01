@@ -1,5 +1,6 @@
 package ec.brooke.mcfunctionserver;
 
+import io.javalin.http.ForbiddenResponse;
 import net.minecraft.DetectedVersion;
 import net.minecraft.FileUtil;
 import net.minecraft.network.chat.Component;
@@ -11,6 +12,8 @@ import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.PathPackResources;
 import net.minecraft.server.packs.repository.PackSource;
 import net.minecraft.server.packs.resources.MultiPackResourceManager;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -70,9 +73,11 @@ public class PackAccessor {
      * @param location The ResourceLocation of the mcfunction file.
      * @return The Path to the mcfunction file.
      */
-    public Path getPath(ResourceLocation location) {
+    public Path getPath(ResourceLocation location) throws FileNotFoundException {
         ResourceLocation file = ServerFunctionLibrary.LISTER.idToFile(location);
-        return root.resolve(DATA_DIR).resolve(file.getNamespace()).resolve(file.getPath());
+        Path path = root.resolve(DATA_DIR).resolve(file.getNamespace()).resolve(file.getPath());
+        if (!pathValid(path)) throw new ForbiddenResponse("File path is invalid: " + path);
+        return path;
     }
 
     /**
@@ -85,15 +90,25 @@ public class PackAccessor {
     }
 
     /**
+     * Resolves a given path to ensure it exists, removing the file extension if necessary.
+     * @param path The Path to resolve.
+     * @return The resolved Path.
+     * @throws FileNotFoundException if no file or folder exists with that name.
+     */
+    public Path resolve(Path path) throws FileNotFoundException {
+        if (!Files.exists(path)) path = path.resolveSibling(FilenameUtils.removeExtension(path.getFileName().toString()));
+        if (!Files.exists(path)) throw new FileNotFoundException("No file or folder: " + path);
+        else return path;
+    }
+
+    /**
      * Retrieves an InputStream for a specific mcfunction file in the pack.
      * @param location The ResourceLocation of the mcfunction file.
      * @return An InputStream for the mcfunction file.
      * @throws FileNotFoundException if the file does not exist or the path is invalid.
      */
     public InputStream get(ResourceLocation location) throws FileNotFoundException {
-        Path path = getPath(location);
-        if (pathValid(path)) return new FileInputStream(path.toFile());
-        else throw new FileNotFoundException("File not found or path is invalid: " + path);
+        return new FileInputStream(getPath(location).toFile());
     }
 
     /**
@@ -105,8 +120,6 @@ public class PackAccessor {
      */
     public void put(ResourceLocation location, InputStream content) throws IOException {
         Path path = getPath(location);
-        if (!pathValid(path)) throw new FileNotFoundException("Path is invalid: " + path);
-
         FileUtil.createDirectoriesSafe(path.getParent());
         try (OutputStream out = new FileOutputStream(path.toFile())) {
             content.transferTo(out);
@@ -119,9 +132,8 @@ public class PackAccessor {
      * @throws IOException if the file does not exist, the path is invalid, or an I/O error occurs while deleting the file.
      */
     public void delete(ResourceLocation location) throws IOException {
-        Path path = getPath(location);
-        if (!pathValid(path) || !Files.exists(path)) throw new FileNotFoundException("File not found or path is invalid: " + path);
-        if (!path.toFile().delete()) throw new IOException("Failed to delete file: " + path);
+        Path path = resolve(getPath(location));
+        if (!FileUtils.deleteQuietly(path.toFile())) throw new IOException("Failed to delete file: " + path);
 
         while (true) {
             path = path.getParent();
@@ -137,10 +149,8 @@ public class PackAccessor {
             ResourceLocation destination,
             IOBiConsumer<Path, Path> consumer
     ) throws IOException {
-        Path sourcePath = getPath(source);
+        Path sourcePath = resolve(getPath(source));
         Path destinationPath = getPath(destination);
-        if (!pathValid(sourcePath) || !pathValid(destinationPath) || !Files.exists(sourcePath))
-            throw new FileNotFoundException("Source or destination path is invalid");
 
         FileUtil.createDirectoriesSafe(destinationPath.getParent());
         consumer.accept(sourcePath, destinationPath);

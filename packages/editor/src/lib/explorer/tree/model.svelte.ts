@@ -1,5 +1,6 @@
+import { addToast } from "$lib/toast/Toaster.svelte";
 import type { TreeItem } from "melt/builders";
-import test from "./test.json";
+import { ofetch } from "ofetch";
 
 //? Filesystem Model paths/locations/ids are reversed from traditional paths.
 // For example "namespace/directory/function" is represented as "function/directory/namespace".
@@ -26,6 +27,11 @@ export class ModelNode implements TreeItem {
 	public get id(): string {
 		if (!this.parent) return this.name;
 		return `${this.name}/${this.parent.id}`;
+	}
+
+	public get path(): string {
+		if (!this.parent) return this.name;
+		return `${this.parent.id}/${this.name}`;
 	}
 
 	public get siblings(): ModelNode[] {
@@ -80,12 +86,17 @@ export class ModelNode implements TreeItem {
 		else return child;
 	}
 
-	public delete(): void {
+	public async delete() {
 		if (!this.parent) throw new Error("Cannot delete root node");
 		if (!this.parent.isDirectory()) throw new Error(`'${this.id}' parent is not a directory`);
 
 		const index = this.parent.children.indexOf(this);
 		if (index === -1) throw new Error(`'${this.id}' is not a child of '${this.parent.id}'`);
+
+		await ofetch(this.path, {
+			baseURL: "/api/file",
+			method: "DELETE",
+		}).catchToast();
 
 		this.parent.children.splice(index, 1);
 	}
@@ -119,11 +130,13 @@ export class ModelNode implements TreeItem {
 		else return this.children.includes(node);
 	}
 
-	public refresh(): void {
+	public async refresh() {
 		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
 
+		const response = await ofetch<string[]>("/api/index").catchToast();
+
 		this.children = [];
-		for (const path of test) this.createFunction(path.split("/").reverse().join("/") + "/");
+		for (const path of response) this.createFunction(path.split("/").reverse().join("/") + "/");
 	}
 }
 

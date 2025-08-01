@@ -1,9 +1,11 @@
 <script lang="ts">
 	import Editor from "$lib/Editor.svelte";
+	import Toaster from "$lib/toast/Toaster.svelte";
 	import "greset";
 </script>
 
 <Editor />
+<Toaster />
 
 <style lang="scss">
 	:global(body) {

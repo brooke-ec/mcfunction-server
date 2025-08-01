@@ -8,8 +8,8 @@
 	import placeholder from "./monaco/language/placeholder.txt?raw";
 	import Explorer from "./explorer/Explorer.svelte";
 	import type { Attachment } from "svelte/attachments";
+	import TabList from "./tablist/TabList.svelte";
 	import * as actions from "./actions";
-	import TabList from "./TabList/TabList.svelte";
 
 	const attach: Attachment<HTMLElement> = (element) => {
 		const observer = new ResizeObserver(() => {

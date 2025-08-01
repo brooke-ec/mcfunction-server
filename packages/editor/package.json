@@ -20,6 +20,7 @@
 		"monaco-editor-textmate": "^4.0.0",
 		"monaco-textmate": "^3.0.1",
 		"monaco-vscode-textmate-theme-converter": "^0.1.7",
+		"ofetch": "^1.4.1",
 		"onigasm": "^2.2.5",
 		"prettier": "^3.6.1",
 		"prettier-plugin-svelte": "^3.4.0",

@@ -1,7 +1,9 @@
 package ec.brooke.mcfunctionserver;
 
 import io.javalin.Javalin;
+import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
+import io.javalin.http.NotFoundResponse;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
@@ -54,22 +56,18 @@ public class Server {
     }
 
     private ResourceLocation parsePath(String string) {
-        return ResourceLocation.fromNamespaceAndPath(Mod.CONFIG.namespace, string);
+        try { return ResourceLocation.fromNamespaceAndPath(Mod.CONFIG.namespace, string); }
+        catch (ResourceLocationException e) { throw new BadRequestResponse("Invalid resource location: " + string); }
     }
 
     private void read(Context ctx) {
         try { ctx.result(accessor.get(parsePath(ctx))).contentType("text/mcfunction"); }
-        catch (FileNotFoundException ignored) { ctx.status(404); }
-        catch (ResourceLocationException ignored) { ctx.status(400); }
+        catch (FileNotFoundException e) { throw new NotFoundResponse("File not found"); }
     }
 
     private void write(Context ctx) throws IOException {
-        try {
-            accessor.put(parsePath(ctx), ctx.bodyInputStream());
-            ctx.status(201);
-        }
-        catch (FileNotFoundException ignored) { ctx.status(403); }
-        catch (ResourceLocationException ignored) { ctx.status(400); }
+        accessor.put(parsePath(ctx), ctx.bodyInputStream());
+        ctx.status(201);
     }
 
     private void remove(Context ctx) throws IOException {
@@ -77,8 +75,7 @@ public class Server {
             accessor.delete(parsePath(ctx));
             ctx.status(204);
         }
-        catch (FileNotFoundException ignored) { ctx.status(404); }
-        catch (ResourceLocationException ignored) { ctx.status(400); }
+        catch (FileNotFoundException ignored) { throw new NotFoundResponse("File not found"); }
     }
 
     private void transfer(Context ctx) throws IOException {
@@ -95,7 +92,7 @@ public class Server {
             else if (command.equals(COPY_COMMAND)) accessor.copy(source, destination);
             ctx.status(201);
         }
-        catch (FileNotFoundException ignored) { ctx.status(404); }
-        catch (NoSuchElementException | ResourceLocationException ignored) { ctx.status(400); }
+        catch (FileNotFoundException ignored) { throw new NotFoundResponse("File not found"); }
+        catch (NoSuchElementException ignored) { throw new BadRequestResponse("Invalid PATCH command"); }
     }
 }
