@@ -122,7 +122,7 @@ export class ModelNode implements TreeItem {
 		if (destination.includes(this.name))
 			throw new Error(`'${destination.id}' already has a child named '${this.name}'`);
 
-		await ofetch(`${destination.path}${this.name}`, {
+		await ofetch(`${destination.path}/${this.name}`, {
 			body: `MOVE ${this.path}`,
 			baseURL: "/api/file",
 			method: "PATCH",
@@ -138,7 +138,7 @@ export class ModelNode implements TreeItem {
 		if (destination.includes(this.name))
 			throw new Error(`'${destination.id}' already has a child named '${this.name}'`);
 
-		await ofetch(`${destination.path}${this.name}`, {
+		await ofetch(`${destination.path}/${this.name}`, {
 			body: `COPY ${this.path}`,
 			baseURL: "/api/file",
 			method: "PATCH",
