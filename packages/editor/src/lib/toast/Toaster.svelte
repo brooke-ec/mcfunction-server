@@ -2,9 +2,14 @@
 	const toaster = new Toaster<string>({ closeDelay: 10000 });
 	export const addToast = toaster.addToast;
 
+	export function error(e: unknown) {
+		addToast({ data: e instanceof Error ? e.message : "An unknown error occurred" });
+		console.error(e);
+	}
+
 	Promise.prototype.catchToast = function () {
 		return this.catch((e) => {
-			addToast({ data: e instanceof Error ? e.message : "An unknown error occurred" });
+			error(e);
 			throw e;
 		});
 	};

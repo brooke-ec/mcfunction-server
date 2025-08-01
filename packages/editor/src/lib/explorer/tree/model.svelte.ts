@@ -1,4 +1,4 @@
-import { addToast } from "$lib/toast/Toaster.svelte";
+import { addToast, error } from "$lib/toast/Toaster.svelte";
 import type { TreeItem } from "melt/builders";
 import { ofetch } from "ofetch";
 
@@ -31,7 +31,7 @@ export class ModelNode implements TreeItem {
 
 	public get path(): string {
 		if (!this.parent) return this.name;
-		return `${this.parent.id}/${this.name}`;
+		return `${this.parent.path}/${this.name}`;
 	}
 
 	public get siblings(): ModelNode[] {
@@ -64,26 +64,40 @@ export class ModelNode implements TreeItem {
 		else return child;
 	}
 
-	public createFunction(path: string): ModelFunction {
+	public addFunction(path: string): ModelFunction {
 		const { segment, remaining } = popl(path);
-		if (remaining) return this.createDirectory(remaining).createFunction(segment);
+		if (remaining) return this.addDirectory(remaining).addFunction(segment);
 
 		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
 
-		let child = this.children.find((c) => c.name === segment && c.isFunction()) as ModelFunction | undefined;
+		let child = this.children.find((c) => c.name === segment);
 		if (!child) this.children.push((child = new ModelNode(segment, this, false) as ModelFunction));
+		if (!child.isFunction()) throw new Error(`'${this.id}' already has a child named '${segment}'`);
 		return child;
 	}
 
-	public createDirectory(path: string): ModelDirectory {
+	public addDirectory(path: string): ModelDirectory {
 		if (!this.isDirectory()) throw new Error(`'${this.id}' is not a directory`);
 
 		const { segment, remaining } = popr(path);
-		let child = this.children.find((c) => c.name === segment && c.isDirectory()) as ModelDirectory | undefined;
+		let child = this.children.find((c) => c.name === segment);
 		if (!child) this.children.push((child = new ModelNode(segment, this, true) as ModelDirectory));
+		if (!child.isDirectory()) throw new Error(`'${this.id}' already has a child named '${segment}'`);
 
-		if (remaining) return child.createDirectory(remaining);
+		if (remaining) return child.addDirectory(remaining);
 		else return child;
+	}
+
+	public async rename(name: string) {
+		if (!this.parent) throw new Error("Cannot rename root node");
+
+		await ofetch(`${this.parent.path}${name}`, {
+			body: `MOVE ${this.path}`,
+			baseURL: "/api/file",
+			method: "PATCH",
+		}).catchToast();
+
+		this.name = name;
 	}
 
 	public async delete() {
@@ -101,12 +115,18 @@ export class ModelNode implements TreeItem {
 		this.parent.children.splice(index, 1);
 	}
 
-	public move(destination: ModelDirectory): void {
+	public async move(destination: ModelDirectory) {
 		if (!this.parent) throw new Error("Cannot move root node");
 		if (destination === this.parent) return; // No move needed
 
 		if (destination.includes(this.name))
 			throw new Error(`'${destination.id}' already has a child named '${this.name}'`);
+
+		await ofetch(`${destination.path}${this.name}`, {
+			body: `MOVE ${this.path}`,
+			baseURL: "/api/file",
+			method: "PATCH",
+		}).catchToast();
 
 		// Update references to perform the move
 		this.parent.children.splice(this.parent.children.indexOf(this), 1);
@@ -114,10 +134,17 @@ export class ModelNode implements TreeItem {
 		this.parent = destination;
 	}
 
-	public copy(destination: ModelDirectory): ModelNode {
+	public async copy(destination: ModelDirectory) {
 		if (destination.includes(this.name))
 			throw new Error(`'${destination.id}' already has a child named '${this.name}'`);
 
+		await ofetch(`${destination.path}${this.name}`, {
+			body: `COPY ${this.path}`,
+			baseURL: "/api/file",
+			method: "PATCH",
+		}).catchToast();
+
+		// Update references to perform the move
 		const result = new ModelNode(this.name, destination, this.isDirectory()) as ModelDirectory;
 		for (const child of this.children ?? []) child.copy(result);
 		destination.children.push(result);
@@ -136,7 +163,8 @@ export class ModelNode implements TreeItem {
 		const response = await ofetch<string[]>("/api/index").catchToast();
 
 		this.children = [];
-		for (const path of response) this.createFunction(path.split("/").reverse().join("/") + "/");
+		for (const path of response)
+			(async () => this.addFunction(path.split("/").reverse().join("/") + "/"))().catchToast();
 	}
 }
 

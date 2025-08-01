@@ -73,7 +73,7 @@ public class PackAccessor {
      * @param location The ResourceLocation of the mcfunction file.
      * @return The Path to the mcfunction file.
      */
-    public Path getPath(ResourceLocation location) throws FileNotFoundException {
+    public Path getFunction(ResourceLocation location) {
         ResourceLocation file = ServerFunctionLibrary.LISTER.idToFile(location);
         Path path = root.resolve(DATA_DIR).resolve(file.getNamespace()).resolve(file.getPath());
         if (!pathValid(path)) throw new ForbiddenResponse("File path is invalid: " + path);
@@ -90,13 +90,31 @@ public class PackAccessor {
     }
 
     /**
+     * Retrieves the path to a specific directory in the pack.
+     * @param location The ResourceLocation of the directory.
+     * @return The Path to the directory.
+     */
+    private Path getDirectory(ResourceLocation location) {
+        return getDirectory(getFunction(location));
+    }
+
+    /**
+     * Retrieves the path to a specific directory in the pack.
+     * @param path The path to the directory.
+     * @return The Path to the directory.
+     */
+    private Path getDirectory(Path path) {
+        return path.resolveSibling(FilenameUtils.removeExtension(path.getFileName().toString()));
+    }
+
+    /**
      * Resolves a given path to ensure it exists, removing the file extension if necessary.
      * @param path The Path to resolve.
      * @return The resolved Path.
      * @throws FileNotFoundException if no file or folder exists with that name.
      */
-    public Path resolve(Path path) throws FileNotFoundException {
-        if (!Files.exists(path)) path = path.resolveSibling(FilenameUtils.removeExtension(path.getFileName().toString()));
+    private Path resolve(Path path) throws FileNotFoundException {
+        if (!Files.exists(path)) path = getDirectory(path);
         if (!Files.exists(path)) throw new FileNotFoundException("No file or folder: " + path);
         else return path;
     }
@@ -108,7 +126,7 @@ public class PackAccessor {
      * @throws FileNotFoundException if the file does not exist or the path is invalid.
      */
     public InputStream get(ResourceLocation location) throws FileNotFoundException {
-        return new FileInputStream(getPath(location).toFile());
+        return new FileInputStream(getFunction(location).toFile());
     }
 
     /**
@@ -119,7 +137,7 @@ public class PackAccessor {
      * @throws IOException if an I/O error occurs while writing to the file.
      */
     public void put(ResourceLocation location, InputStream content) throws IOException {
-        Path path = getPath(location);
+        Path path = getFunction(location);
         FileUtil.createDirectoriesSafe(path.getParent());
         try (OutputStream out = new FileOutputStream(path.toFile())) {
             content.transferTo(out);
@@ -132,7 +150,7 @@ public class PackAccessor {
      * @throws IOException if the file does not exist, the path is invalid, or an I/O error occurs while deleting the file.
      */
     public void delete(ResourceLocation location) throws IOException {
-        Path path = resolve(getPath(location));
+        Path path = resolve(getFunction(location));
         if (!FileUtils.deleteQuietly(path.toFile())) throw new IOException("Failed to delete file: " + path);
 
         while (true) {
@@ -149,8 +167,8 @@ public class PackAccessor {
             ResourceLocation destination,
             IOBiConsumer<Path, Path> consumer
     ) throws IOException {
-        Path sourcePath = resolve(getPath(source));
-        Path destinationPath = getPath(destination);
+        Path sourcePath = resolve(getFunction(source));
+        Path destinationPath = sourcePath.toFile().isDirectory() ? getDirectory(destination) : getFunction(destination);
 
         FileUtil.createDirectoriesSafe(destinationPath.getParent());
         consumer.accept(sourcePath, destinationPath);

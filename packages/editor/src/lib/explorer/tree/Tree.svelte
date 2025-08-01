@@ -26,7 +26,7 @@
 	export async function rename() {
 		const node = model.resolve(selected());
 		const name = await startRename(node.id);
-		node.name = name;
+		await node.rename(name);
 		select(node.id);
 	}
 
@@ -69,9 +69,8 @@
 		}
 	}
 
-	export const createFunction = () => create((parent) => parent.createFunction(""));
-	export const createDirectory = () => create((parent) => parent.createDirectory(""));
-
+	export const createFunction = () => create((parent) => parent.addFunction(""));
+	export const createDirectory = () => create((parent) => parent.addDirectory(""));
 	export const refresh = () => model.refresh();
 
 	export const select = (id: string) => tree?.select(id);
