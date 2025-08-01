@@ -26,7 +26,7 @@
 	export async function rename() {
 		const node = model.resolve(selected());
 		const name = await startRename(node.id);
-		await node.rename(name);
+		if (node.name != name) await node.rename(name);
 		select(node.id);
 	}
 
@@ -66,12 +66,24 @@
 		else {
 			result.name = name;
 			select(result.id);
+			return result;
 		}
 	}
 
-	export const createFunction = () => create((parent) => parent.addFunction(""));
-	export const createDirectory = () => create((parent) => parent.addDirectory(""));
 	export const refresh = () => model.refresh();
+
+	export const createDirectory = () => create((parent) => parent.addDirectory(""));
+
+	export async function createFunction() {
+		const result = await create((parent) => parent.addFunction(""));
+
+		if (result)
+			await ofetch(result.path, {
+				body: `# Function '${result.path}'`,
+				baseURL: "/api/file",
+				method: "PUT",
+			});
+	}
 
 	export const select = (id: string) => tree?.select(id);
 
@@ -106,6 +118,7 @@
 <script lang="ts">
 	import Node from "./Node.svelte";
 	import { onMount } from "svelte";
+	import { ofetch } from "ofetch";
 
 	tree = new Tree({ items: [model] });
 	onMount(refresh);
