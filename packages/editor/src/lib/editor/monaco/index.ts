@@ -6,6 +6,7 @@ import configuration from "./language/configuration";
 import onigasm from "onigasm/lib/onigasm.wasm?url";
 import { Registry } from "monaco-textmate";
 import * as monaco from "monaco-editor";
+import * as actions from "../actions";
 import { loadWASM } from "onigasm";
 
 const SCOPE_MCFUNCTION = "mcfunction";
@@ -30,4 +31,31 @@ loadWASM(onigasm)
 
 monaco.editor.defineTheme("catppuccin-macchiato", theme);
 
-export { monaco };
+export let renaming: monaco.editor.IContextKey<boolean>;
+export let editor: monaco.editor.IStandaloneCodeEditor;
+
+export function create(element: HTMLElement) {
+	editor = monaco.editor.create(element, {
+		theme: "catppuccin-macchiato",
+		language: "mcfunction",
+	});
+
+	renaming = editor.createContextKey("renaming", false);
+	for (const action of Object.values(actions)) action.register();
+
+	const observer = new ResizeObserver(() => {
+		editor?.layout({
+			width: element.clientWidth * 0.8,
+			height: element.clientHeight - 35,
+		});
+	});
+
+	observer.observe(element);
+	editor.focus();
+
+	editor.onDidDispose(() => {
+		observer.unobserve(element);
+	});
+
+	return editor;
+}

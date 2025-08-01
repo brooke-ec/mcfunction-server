@@ -100,17 +100,12 @@ export class ModelNode implements TreeItem {
 		this.name = name;
 	}
 
-	public async delete() {
+	public remove() {
 		if (!this.parent) throw new Error("Cannot delete root node");
 		if (!this.parent.isDirectory()) throw new Error(`'${this.id}' parent is not a directory`);
 
 		const index = this.parent.children.indexOf(this);
 		if (index === -1) throw new Error(`'${this.id}' is not a child of '${this.parent.id}'`);
-
-		await ofetch(this.path, {
-			baseURL: "/api/file",
-			method: "DELETE",
-		}).catchToast();
 
 		this.parent.children.splice(index, 1);
 	}

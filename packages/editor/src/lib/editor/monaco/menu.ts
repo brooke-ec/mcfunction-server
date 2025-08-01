@@ -1,6 +1,6 @@
 import { Separator } from "monaco-editor/esm/vs/base/common/actions";
 import type { ActionDescriptor } from "./action";
-import { editor } from "$lib/Editor.svelte";
+import { editor } from ".";
 
 const CONTRIBUTION_ID = "editor.contrib.contextmenu";
 

@@ -1,11 +1,14 @@
 <script lang="ts">
-	import Editor from "$lib/Editor.svelte";
 	import Toaster from "$lib/toast/Toaster.svelte";
 	import "greset";
 </script>
 
-<Editor />
 <Toaster />
+
+<!-- Import the editor functionality completely on the clientside -->
+{#await import("$lib/editor/Editor.svelte") then { default: Editor }}
+	<Editor />
+{/await}
 
 <style lang="scss">
 	:global(body) {

@@ -1,6 +1,6 @@
 <script lang="ts" module>
-	import { ModelNode, popl, type ModelDirectory, type ModelRoot } from "./model.svelte";
-	import { renamingContext } from "$lib/Editor.svelte";
+	import { ModelNode, popl, type ModelRoot } from "./model.svelte";
+	import * as monaco from "../../monaco";
 	import { Tree } from "melt/builders";
 
 	let model = $state<ModelRoot>(ModelNode.create());
@@ -12,14 +12,14 @@
 	let renaming = $state<{ id: string; submit: (value: string) => void } | null>(null);
 	export const renamingId = () => renaming?.id ?? null;
 	export function submitRename(value: string) {
-		renamingContext?.set(false);
+		monaco.renaming.set(false);
 		renaming?.submit(value);
 		renaming = null;
 	}
 
 	const startRename = (id: string) =>
 		new Promise<string>((submit) => {
-			renamingContext?.set(true);
+			monaco.renaming.set(true);
 			renaming = { id, submit };
 		});
 
@@ -46,6 +46,10 @@
 		if (clipboard.move) clipboard = null;
 	}
 
+	export function refresh() {
+		model.refresh();
+	}
+
 	export function expand(id: string | null) {
 		if (!tree) throw new Error("Tree not initialized");
 		while (id !== null) {
@@ -62,7 +66,7 @@
 		const result = factory(parent);
 
 		const name = await startRename(result.id);
-		if (!name) result.delete();
+		if (!name) result.remove();
 		else {
 			result.name = name;
 			select(result.id);
@@ -70,9 +74,9 @@
 		}
 	}
 
-	export const refresh = () => model.refresh();
-
-	export const createDirectory = () => create((parent) => parent.addDirectory(""));
+	export function createDirectory() {
+		create((parent) => parent.addDirectory(""));
+	}
 
 	export async function createFunction() {
 		const result = await create((parent) => parent.addFunction(""));
@@ -98,8 +102,14 @@
 		if (node.isRoot()) throw new Error("Cannot delete root node");
 
 		if (!confirm(`Are you sure you want to delete '${node.name}'?`)) return;
+
+		await ofetch(node.path, {
+			baseURL: "/api/file",
+			method: "DELETE",
+		}).catchToast();
+
 		tree?.select("");
-		node.delete();
+		node.remove();
 	}
 
 	export function paste(source: string, desination: string, move: boolean) {

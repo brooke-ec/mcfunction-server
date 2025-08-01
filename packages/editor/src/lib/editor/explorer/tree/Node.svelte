@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { createFunction, createDirectory, renamingId, select, refresh, movingId, canPaste } from "./Tree.svelte";
 	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
-	import type { ActionDescriptor } from "$lib/monaco/action";
+	import type { ActionDescriptor } from "../../monaco/action";
+	import { showContextmenu } from "../../monaco/menu";
 	import RenameInput from "./RenameInput.svelte";
-	import { showContextmenu } from "$lib/monaco";
 	import { slide } from "svelte/transition";
 	import type { Tree } from "melt/builders";
 	import { ModelNode } from "./model.svelte";
-	import * as actions from "$lib/actions";
+	import * as actions from "../../actions";
 	import Node from "./Node.svelte";
 
 	import folderClosed from "mc-dp-icons/fileicons/imgs/folder.svg?no-inline";
