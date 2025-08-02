@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { createFunction, createDirectory, renamingId, select, refresh, movingId, canPaste } from "./Tree.svelte";
 	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
+	import { openTab } from "$lib/editor/tablist/TabList.svelte";
 	import type { ActionDescriptor } from "../../monaco/action";
 	import { showContextmenu } from "../../monaco/menu";
 	import RenameInput from "./RenameInput.svelte";
@@ -50,6 +51,12 @@
 
 		showContextmenu(e, visible);
 	}
+
+	function onclick(e: MouseEvent) {
+		node.attrs.onclick(e);
+		if (children) return;
+		openTab(node.item.path);
+	}
 </script>
 
 {#if getSource() == node.id}
@@ -70,6 +77,7 @@
 			{...isRenaming ? {} : node.attrs}
 			{oncontextmenu}
 			class="item"
+			{onclick}
 		>
 			{#if isRoot}
 				<p class="title">FUNCTIONS</p>

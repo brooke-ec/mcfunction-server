@@ -13,7 +13,6 @@
 		grid-area: explorer;
 		padding-top: 10px;
 		overflow-x: auto;
-		min-width: 20vw;
 		height: 100%;
 	}
 </style>

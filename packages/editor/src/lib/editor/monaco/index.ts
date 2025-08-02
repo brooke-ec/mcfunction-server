@@ -35,10 +35,7 @@ export let renaming: monaco.editor.IContextKey<boolean>;
 export let editor: monaco.editor.IStandaloneCodeEditor;
 
 export function create(element: HTMLElement) {
-	editor = monaco.editor.create(element, {
-		theme: "catppuccin-macchiato",
-		language: "mcfunction",
-	});
+	editor = monaco.editor.create(element, { theme: "catppuccin-macchiato" });
 
 	renaming = editor.createContextKey("renaming", false);
 	for (const action of Object.values(actions)) action.register();

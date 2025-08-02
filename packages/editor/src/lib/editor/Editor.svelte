@@ -30,8 +30,8 @@
 		width: 100%;
 
 		display: grid;
-		grid-template-columns: repeat(2, auto);
-		grid-template-rows: repeat(2, auto);
+		grid-template-columns: 20vw 80vw;
+		grid-template-rows: 35px auto;
 		grid-template-areas:
 			"explorer tablist"
 			"explorer editor";
