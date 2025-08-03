@@ -18,7 +18,9 @@
 	{#each getTabs() as tab (tab.model.uri.path)}
 		<Tab {tab} />
 	{/each}
-	<button class="save codicon codicon-save" aria-label="save file" onclick={() => getActive()?.save()}></button>
+	{#if getActive() !== null}
+		<button class="save codicon codicon-save" aria-label="save file" onclick={() => getActive()?.save()}></button>
+	{/if}
 </div>
 
 <Cover />

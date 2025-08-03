@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { refresh } from "../Editor.svelte";
 	import { createFunction } from "../explorer/tree/Tree.svelte";
 	import { getActive } from "./model.svelte";
 
@@ -8,13 +9,17 @@
 {#if tab?.loading !== false}
 	<div class="cover">
 		{#if tab === null}
-			<img src="/favicon.ico" alt="mcfunction server logo" />
+			<img src="/favicon.png" alt="mcfunction server logo" width="100" />
 			<h1>mcfunction-server</h1>
 			<div class="suggestions">
 				<ul>
 					<li>
 						<span class="codicon codicon-new-file"></span>
 						<button class="a" onclick={createFunction}> New Function </button>
+					</li>
+					<li>
+						<span class="codicon codicon-refresh"></span>
+						<button class="a" onclick={refresh}> Refresh </button>
 					</li>
 				</ul>
 				<ul>
