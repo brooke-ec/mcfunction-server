@@ -12,14 +12,22 @@
 
 		return s.destroy.bind(s);
 	};
+
+	let active = $derived(getActive());
 </script>
+
+<svelte:head>
+	<title>
+		{(active ? (active.dirty ? "● " : "") + active.name + " - " : "") + "mcfunction-server"}
+	</title>
+</svelte:head>
 
 <div class="tab-list" {@attach sortable}>
 	{#each getTabs() as tab (tab.model.uri.path)}
 		<Tab {tab} />
 	{/each}
-	{#if getActive() !== null}
-		<button class="save codicon codicon-save" aria-label="save file" onclick={() => getActive()?.save()}></button>
+	{#if active !== null}
+		<button class="save codicon codicon-save" aria-label="save file" onclick={() => active.save()}></button>
 	{/if}
 </div>
 
