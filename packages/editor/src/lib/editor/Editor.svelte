@@ -9,17 +9,16 @@
 </script>
 
 <script lang="ts">
+	import { isLoading, setLoading } from "../../routes/Loading.svelte";
 	import type { Attachment } from "svelte/attachments";
 	import Explorer from "./explorer/Explorer.svelte";
 	import TabList from "./tablist/TabList.svelte";
 	import { create } from "./monaco";
 
-	let loading = $state(true);
-
 	const attach: Attachment<HTMLElement> = (element) => {
-		loading = true;
+		setLoading(true);
 		const editor = create(element);
-		editor.onDidScrollChange(() => (loading = false));
+		editor.onDidScrollChange(() => setLoading(false));
 
 		return () => editor.dispose();
 	};
@@ -27,7 +26,7 @@
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <main {@attach attach} tabindex="0">
-	{#if !loading}
+	{#if !isLoading()}
 		<Explorer />
 		<TabList />
 	{/if}

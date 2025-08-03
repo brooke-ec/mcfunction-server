@@ -3,6 +3,7 @@
 
 	import "greset";
 	import "$lib/global.scss";
+	import Loading from "./Loading.svelte";
 </script>
 
 <Toaster />
@@ -11,3 +12,5 @@
 {#await import("$lib/editor/Editor.svelte") then { default: Editor }}
 	<Editor />
 {/await}
+
+<Loading />
