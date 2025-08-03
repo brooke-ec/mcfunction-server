@@ -80,7 +80,7 @@
 
 		if (result)
 			await ofetch(result.path, {
-				body: `# Function '${result.path}'`,
+				body: `# Function '${result.path}'\n`,
 				baseURL: "/api/file",
 				method: "PUT",
 			});

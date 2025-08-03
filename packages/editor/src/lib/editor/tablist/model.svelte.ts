@@ -76,7 +76,7 @@ export class ModelTab {
 	}
 
 	public async refresh() {
-		if (this.loading) return;
+		if (this.loading || this.dirty) return;
 		const first = this.currentId === 0;
 
 		this.loading = true;
@@ -88,5 +88,19 @@ export class ModelTab {
 		if (first) this.model.setValue(content);
 		else this.model.pushEditOperations([], [{ range: this.model.getFullModelRange(), text: content }], () => null);
 		this.savedId = this.currentId;
+	}
+
+	public async save() {
+		if (!this.dirty) return;
+
+		const id = this.currentId;
+
+		await ofetch(this.path, {
+			body: this.model.getValue(),
+			baseURL: "/api/file",
+			method: "PUT",
+		}).catchToast();
+
+		this.savedId = id;
 	}
 }

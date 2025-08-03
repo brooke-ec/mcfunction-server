@@ -1,0 +1,9 @@
+body {
+	overflow: hidden;
+	max-width: 100vw;
+	max-height: 100vh;
+}
+
+::selection {
+	background-color: var(--vscode-selection-background);
+}

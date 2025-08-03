@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Attachment } from "svelte/attachments";
-	import { getTabs } from "./model.svelte";
+	import { getActive, getTabs } from "./model.svelte";
 	import Sortable from "sortablejs";
 	import Tab from "./Tab.svelte";
 
@@ -17,11 +17,26 @@
 	{#each getTabs() as tab (tab.model.uri.path)}
 		<Tab {tab} />
 	{/each}
+	<button class="save codicon codicon-save" aria-label="save file" onclick={() => getActive()?.save()}></button>
 </div>
 
 <style lang="scss">
 	.tab-list {
 		background-color: var(--vscode-textBlockQuote-border);
 		display: flex;
+	}
+
+	.save {
+		transition: background-color 150ms ease-in-out;
+		color: var(--vscode-icon-foreground);
+		margin: 5px 5px 5px auto;
+		border-radius: 5px;
+		background: none;
+		font-size: 14px;
+		border: none;
+
+		&:hover {
+			background-color: var(--vscode-list-focusBackground);
+		}
 	}
 </style>

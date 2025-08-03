@@ -57,10 +57,11 @@
 	}
 
 	.close-button {
+		transition: background-color 150ms ease-in-out;
 		color: var(--vscode-icon-foreground);
 		aspect-ratio: 1 / 1;
 		height: min-content;
-		border-radius: 3px;
+		border-radius: 5px;
 		position: absolute;
 		margin-top: 7px;
 		padding: 2px;

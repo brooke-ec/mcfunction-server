@@ -2,6 +2,7 @@ import { refresh } from "./Editor.svelte";
 import * as tree from "./explorer/tree/Tree.svelte";
 import { ActionDescriptor } from "./monaco/action";
 import { KeyMod, KeyCode } from "monaco-editor";
+import * as tabs from "./tablist/model.svelte";
 
 export const newFunction = new ActionDescriptor({
 	id: "custom.tree.new-function",
@@ -72,4 +73,19 @@ export const treeRefresh = new ActionDescriptor({
 	alias: "Refresh",
 	keybindings: [KeyMod.CtrlCmd | KeyCode.KeyR],
 	run: refresh,
+});
+
+export const tabSave = new ActionDescriptor({
+	id: "custom.tab.save",
+	label: "Save Active Tab",
+	alias: "Save",
+	keybindings: [KeyMod.CtrlCmd | KeyCode.KeyS],
+	run: () => tabs.getActive()?.save(),
+});
+
+export const tabSaveAll = new ActionDescriptor({
+	id: "custom.tab.save-all",
+	label: "Save All Tabs",
+	keybindings: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyS],
+	run: () => tabs.getTabs().forEach((tab) => tab.save()),
 });
