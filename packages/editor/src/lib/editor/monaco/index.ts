@@ -9,7 +9,8 @@ import * as monaco from "monaco-editor";
 import * as actions from "../actions";
 import { loadWASM } from "onigasm";
 
-const SCOPE_MCFUNCTION = "mcfunction";
+export const DEFAULT_MODEL = monaco.editor.createModel("");
+export const SCOPE_MCFUNCTION = "mcfunction";
 
 self.MonacoEnvironment = {
 	getWorker: () => new EditorWorker(),
@@ -35,7 +36,7 @@ export let renaming: monaco.editor.IContextKey<boolean>;
 export let editor: monaco.editor.IStandaloneCodeEditor;
 
 export function create(element: HTMLElement) {
-	editor = monaco.editor.create(element, { theme: "catppuccin-macchiato" });
+	editor = monaco.editor.create(element, { theme: "catppuccin-macchiato", model: DEFAULT_MODEL });
 
 	renaming = editor.createContextKey("renaming", false);
 	for (const action of Object.values(actions)) action.register();

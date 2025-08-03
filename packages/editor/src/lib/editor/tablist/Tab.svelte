@@ -1,48 +1,25 @@
 <script lang="ts">
 	import mcfunction from "mc-dp-icons/fileicons/imgs/mcf_load.svg?no-inline";
-	import { closeTab, switchTab } from "./TabList.svelte";
-	import * as monaco from "monaco-editor";
-	import { onMount } from "svelte";
+	import type { ModelTab } from "./model.svelte";
 
-	let { path, active }: { path: string; active: boolean } = $props();
+	let { tab }: { tab: ModelTab } = $props();
 
 	let mouseover = $state<boolean>(false);
-	let lastSaved = $state<number>(0);
-	let current = $state<number>(0);
-
-	onMount(() => {
-		const model = monaco.editor.getModel(monaco.Uri.file(path))!;
-
-		current = model.getAlternativeVersionId();
-		lastSaved = current;
-
-		const event = model.onDidChangeContent(() => {
-			current = model.getAlternativeVersionId();
-		});
-
-		return () => event.dispose();
-	});
-
-	function close() {
-		if (lastSaved !== current)
-			if (!confirm("You have unsaved changes. Are you sure you want to close this tab?")) return;
-		closeTab(path);
-	}
 </script>
 
-<div class="tab" class:active>
-	<button class="switcher" role="tab" onclick={() => switchTab(path)}>
+<div class="tab" class:active={tab.active}>
+	<button class="switcher" role="tab" onclick={tab.switch.bind(tab)}>
 		<img draggable="false" width="16" src={mcfunction} alt="MC Function Icon" class="icon" />
-		<span class="function-name">{path.split("/").pop()}</span>
+		<span class="function-name">{tab.name}</span>
 	</button>
 	<button
-		class:codicon-circle-filled={!mouseover && lastSaved !== current}
-		class:codicon-close={mouseover || lastSaved === current}
+		class:codicon-circle-filled={tab.dirty && !mouseover}
+		class:codicon-close={!tab.dirty || mouseover}
 		onpointerenter={() => (mouseover = true)}
 		onpointerleave={() => (mouseover = false)}
+		onclick={tab.close.bind(tab)}
 		class="close-button codicon"
 		aria-label="close tab"
-		onclick={close}
 	></button>
 </div>
 

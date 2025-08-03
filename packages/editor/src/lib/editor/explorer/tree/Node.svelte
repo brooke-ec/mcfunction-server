@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { createFunction, createDirectory, renamingId, select, refresh, movingId, canPaste } from "./Tree.svelte";
 	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
-	import { openTab } from "$lib/editor/tablist/TabList.svelte";
 	import type { ActionDescriptor } from "../../monaco/action";
 	import { showContextmenu } from "../../monaco/menu";
 	import RenameInput from "./RenameInput.svelte";
@@ -16,6 +15,7 @@
 	import folderOpen from "mc-dp-icons/fileicons/imgs/folder_open.svg?no-inline";
 	import namespaceClosed from "mc-dp-icons/fileicons/imgs/namespace.svg?no-inline";
 	import namespaceOpen from "mc-dp-icons/fileicons/imgs/namespace_open.svg?no-inline";
+	import { ModelTab } from "$lib/editor/tablist/model.svelte";
 
 	let { node, level = -1 }: { node: Tree<ModelNode>["children"][number]; level?: number } = $props();
 
@@ -54,8 +54,7 @@
 
 	function onclick(e: MouseEvent) {
 		node.attrs.onclick(e);
-		if (children) return;
-		openTab(node.item.path);
+		if (!children) ModelTab.add(node.item.path).switch();
 	}
 </script>
 
