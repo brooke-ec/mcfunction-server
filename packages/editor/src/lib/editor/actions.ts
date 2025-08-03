@@ -1,3 +1,4 @@
+import { refresh } from "./Editor.svelte";
 import * as tree from "./explorer/tree/Tree.svelte";
 import { ActionDescriptor } from "./monaco/action";
 import { KeyMod, KeyCode } from "monaco-editor";
@@ -67,8 +68,8 @@ export const treePaste = new ActionDescriptor({
 
 export const treeRefresh = new ActionDescriptor({
 	id: "custom.tree.refresh",
-	label: "Refresh Function Explorer",
+	label: "Refresh from Server",
 	alias: "Refresh",
 	keybindings: [KeyMod.CtrlCmd | KeyCode.KeyR],
-	run: tree.refresh,
+	run: refresh,
 });

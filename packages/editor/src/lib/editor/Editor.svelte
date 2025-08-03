@@ -1,3 +1,13 @@
+<script lang="ts" module>
+	import { getModel } from "./explorer/tree/Tree.svelte";
+	import { getTabs } from "./tablist/model.svelte";
+
+	export function refresh() {
+		getTabs().forEach((tab) => tab.refresh());
+		getModel().refresh();
+	}
+</script>
+
 <script lang="ts">
 	import type { Attachment } from "svelte/attachments";
 	import Explorer from "./explorer/Explorer.svelte";

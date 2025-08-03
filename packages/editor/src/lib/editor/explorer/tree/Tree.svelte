@@ -4,6 +4,7 @@
 	import { Tree } from "melt/builders";
 
 	let model = $state<ModelRoot>(ModelNode.create());
+	export const getModel = () => model;
 
 	// svelte-ignore non_reactive_update
 	let tree: Tree<ModelNode> | null = null;
@@ -44,10 +45,6 @@
 		paste(clipboard.source, selected(), clipboard.move);
 
 		if (clipboard.move) clipboard = null;
-	}
-
-	export function refresh() {
-		model.refresh();
 	}
 
 	export function expand(id: string | null) {
@@ -131,7 +128,7 @@
 	import { ofetch } from "ofetch";
 
 	tree = new Tree({ items: [model] });
-	onMount(refresh);
+	onMount(model.refresh.bind(model));
 	tree.select("");
 </script>
 

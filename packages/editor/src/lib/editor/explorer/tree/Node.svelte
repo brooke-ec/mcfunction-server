@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { createFunction, createDirectory, renamingId, select, refresh, movingId, canPaste } from "./Tree.svelte";
+	import { createFunction, createDirectory, renamingId, select, movingId, canPaste } from "./Tree.svelte";
 	import { getSource, getTarget, pickup, sticky } from "./draggable.svelte";
 	import type { ActionDescriptor } from "../../monaco/action";
 	import { showContextmenu } from "../../monaco/menu";
+	import { refresh } from "$lib/editor/Editor.svelte";
 	import RenameInput from "./RenameInput.svelte";
 	import { slide } from "svelte/transition";
 	import type { Tree } from "melt/builders";
