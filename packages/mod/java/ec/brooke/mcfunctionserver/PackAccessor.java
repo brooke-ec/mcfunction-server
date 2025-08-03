@@ -152,7 +152,10 @@ public class PackAccessor {
     public void delete(ResourceLocation location) throws IOException {
         Path path = resolve(getFunction(location));
         if (!FileUtils.deleteQuietly(path.toFile())) throw new IOException("Failed to delete file: " + path);
+        deleteEmptyDirectories(path);
+    }
 
+    private void deleteEmptyDirectories(Path path) throws IOException {
         while (true) {
             path = path.getParent();
             try (Stream<Path> files = Files.list(path)) {
@@ -172,6 +175,7 @@ public class PackAccessor {
 
         FileUtil.createDirectoriesSafe(destinationPath.getParent());
         consumer.accept(sourcePath, destinationPath);
+        deleteEmptyDirectories(sourcePath);
     }
 
     /**
