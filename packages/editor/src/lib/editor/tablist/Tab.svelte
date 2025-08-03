@@ -5,9 +5,14 @@
 	let { tab }: { tab: ModelTab } = $props();
 
 	let mouseover = $state<boolean>(false);
+
+	function onmouseup(event: MouseEvent) {
+		if (event.button === 1) tab.close();
+	}
 </script>
 
-<div class="tab" class:active={tab.active}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="tab" class:active={tab.active} {onmouseup}>
 	<button class="switcher" role="tab" onclick={tab.switch.bind(tab)}>
 		<img draggable="false" width="16" src={mcfunction} alt="MC Function Icon" class="icon" />
 		<span class="function-name">{tab.name}</span>

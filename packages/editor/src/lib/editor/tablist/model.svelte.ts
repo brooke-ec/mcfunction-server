@@ -16,9 +16,9 @@ export class ModelTab {
 	private currentId = $state<number>(0);
 	private savedId = $state<number>(0);
 
-	private constructor(model: monaco.editor.ITextModel) {
-		this.path = model.uri.path;
-		this.model = model;
+	private constructor(path: string) {
+		this.model = monaco.editor.createModel("# Loading...\n", SCOPE_MCFUNCTION);
+		this.path = path;
 
 		this.model.onDidChangeContent(() => (this.currentId = this.model.getAlternativeVersionId()));
 	}
@@ -27,8 +27,7 @@ export class ModelTab {
 		let result = tabs.find((t) => t.path == path);
 
 		if (!result) {
-			const model = monaco.editor.createModel("# Loading...\n", SCOPE_MCFUNCTION, monaco.Uri.file(path));
-			result = new ModelTab(model);
+			result = new ModelTab(path);
 			tabs.push(result);
 			result.refresh();
 		}
