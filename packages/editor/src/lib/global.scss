@@ -7,3 +7,23 @@ body {
 ::selection {
 	background-color: var(--vscode-selection-background);
 }
+
+button {
+	background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+}
+
+a,
+button.a {
+	color: var(--vscode-icon-foreground);
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.codicon {
+	color: var(--vscode-icon-foreground);
+}

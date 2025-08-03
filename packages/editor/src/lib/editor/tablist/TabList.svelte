@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Attachment } from "svelte/attachments";
 	import { getActive, getTabs } from "./model.svelte";
+	import Cover from "./Cover.svelte";
 	import Sortable from "sortablejs";
 	import Tab from "./Tab.svelte";
 
@@ -20,6 +21,8 @@
 	<button class="save codicon codicon-save" aria-label="save file" onclick={() => getActive()?.save()}></button>
 </div>
 
+<Cover />
+
 <style lang="scss">
 	.tab-list {
 		background-color: var(--vscode-textBlockQuote-border);
@@ -28,10 +31,10 @@
 
 	.save {
 		transition: background-color 150ms ease-in-out;
-		color: var(--vscode-icon-foreground);
 		margin: 5px 5px 5px auto;
 		border-radius: 5px;
 		background: none;
+		min-width: 25px;
 		font-size: 14px;
 		border: none;
 

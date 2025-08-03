@@ -57,10 +57,6 @@
 	}
 
 	button {
-		color: var(--vscode-icon-foreground);
 		margin-left: auto;
-		background: none;
-		border: none;
-		padding: 0;
 	}
 </style>

@@ -121,12 +121,9 @@
 
 	button {
 		transition: background-color 150ms ease-in-out;
-		background-color: transparent;
 		font-size: 14px;
 		cursor: default;
-		color: inherit;
 		outline: none;
-		border: none;
 	}
 
 	.item {
@@ -171,7 +168,6 @@
 		gap: 2px;
 
 		button {
-			color: var(--vscode-icon-foreground);
 			border-radius: 5px;
 			padding: 3px;
 		}

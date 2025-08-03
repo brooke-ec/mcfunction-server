@@ -42,13 +42,6 @@
 		}
 	}
 
-	button {
-		background: none;
-		color: inherit;
-		border: none;
-		padding: 0;
-	}
-
 	.switcher {
 		white-space: nowrap;
 		padding-bottom: 5px;
@@ -63,7 +56,6 @@
 
 	.close-button {
 		transition: background-color 150ms ease-in-out;
-		color: var(--vscode-icon-foreground);
 		aspect-ratio: 1 / 1;
 		height: min-content;
 		border-radius: 5px;
