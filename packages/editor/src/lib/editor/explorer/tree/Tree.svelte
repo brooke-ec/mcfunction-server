@@ -78,12 +78,15 @@
 	export async function createFunction() {
 		const result = await create((parent) => parent.addFunction(""));
 
-		if (result)
+		if (result) {
 			await ofetch(result.path, {
 				body: `# Function '${result.path}'\n`,
 				baseURL: "/api/file",
 				method: "PUT",
 			});
+
+			ModelTab.add(result.path).switch();
+		}
 	}
 
 	export const select = (id: string) => tree?.select(id);
@@ -126,6 +129,7 @@
 	import Node from "./Node.svelte";
 	import { onMount } from "svelte";
 	import { ofetch } from "ofetch";
+	import { ModelTab } from "$lib/editor/tablist/model.svelte";
 
 	tree = new Tree({ items: [model] });
 	onMount(model.refresh.bind(model));

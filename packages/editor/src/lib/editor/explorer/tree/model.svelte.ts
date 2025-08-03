@@ -1,4 +1,4 @@
-import { addToast, error } from "$lib/toast/Toaster.svelte";
+import { getTabs } from "$lib/editor/tablist/model.svelte";
 import type { TreeItem } from "melt/builders";
 import { ofetch } from "ofetch";
 
@@ -91,11 +91,18 @@ export class ModelNode implements TreeItem {
 	public async rename(name: string) {
 		if (!this.parent) throw new Error("Cannot rename root node");
 
-		await ofetch(`${this.parent.path}/${name}`, {
+		const newpath = `${this.parent.path}/${name}`;
+
+		await ofetch(newpath, {
 			body: `MOVE ${this.path}`,
 			baseURL: "/api/file",
 			method: "PATCH",
 		}).catchToast();
+
+		// Update the path in the tab list
+		getTabs().forEach((tab) => {
+			if (tab.path === this.path) tab.path = newpath;
+		});
 
 		this.name = name;
 	}
@@ -117,11 +124,18 @@ export class ModelNode implements TreeItem {
 		if (destination.includes(this.name))
 			throw new Error(`'${destination.id}' already has a child named '${this.name}'`);
 
-		await ofetch(`${destination.path}/${this.name}`, {
+		const newpath = `${destination.path}/${this.name}`;
+
+		await ofetch(newpath, {
 			body: `MOVE ${this.path}`,
 			baseURL: "/api/file",
 			method: "PATCH",
 		}).catchToast();
+
+		// Update the path in the tab list
+		getTabs().forEach((tab) => {
+			if (tab.path === this.path) tab.path = newpath;
+		});
 
 		// Update references to perform the move
 		this.parent.children.splice(this.parent.children.indexOf(this), 1);

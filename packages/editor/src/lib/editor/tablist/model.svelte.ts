@@ -11,11 +11,13 @@ export const getActive = () => active;
 export class ModelTab {
 	public readonly model: monaco.editor.ITextModel;
 	public loading = $state<boolean>(false);
+	public path = $state<string>("");
 
 	private currentId = $state<number>(0);
 	private savedId = $state<number>(0);
 
 	private constructor(model: monaco.editor.ITextModel) {
+		this.path = model.uri.path;
 		this.model = model;
 
 		this.model.onDidChangeContent(() => (this.currentId = this.model.getAlternativeVersionId()));
@@ -35,11 +37,7 @@ export class ModelTab {
 	}
 
 	public get name(): string {
-		return this.model.uri.path.split("/").pop() || "Untitled";
-	}
-
-	public get path() {
-		return this.model.uri.path;
+		return this.path.split("/").pop() || "Untitled";
 	}
 
 	public get active(): boolean {
@@ -59,6 +57,7 @@ export class ModelTab {
 		if (this.active) return;
 
 		editor.setModel(this.model);
+		editor.focus();
 		active = this;
 	}
 
