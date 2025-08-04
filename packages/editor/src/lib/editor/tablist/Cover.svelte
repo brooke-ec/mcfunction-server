@@ -1,4 +1,5 @@
 <script lang="ts">
+	import mcfunction from "mc-dp-icons/fileicons/imgs/mcf_load.svg";
 	import { createFunction } from "../explorer/tree/Tree.svelte";
 	import { getActive } from "./model.svelte";
 	import { refresh } from "../Editor.svelte";
@@ -10,7 +11,7 @@
 {#if tab?.loading !== false}
 	<div class="cover">
 		{#if tab === null}
-			<img src="/favicon.png" alt="mcfunction server logo" width="100" />
+			<img src={mcfunction} alt="mcfunction server logo" width="100" />
 			<h1>mcfunction-server</h1>
 			<div class="suggestions">
 				<ul>
