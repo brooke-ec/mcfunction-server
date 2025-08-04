@@ -146,6 +146,6 @@
 
 <style lang="scss">
 	.tree {
-		height: 100%;
+		flex-grow: 1;
 	}
 </style>

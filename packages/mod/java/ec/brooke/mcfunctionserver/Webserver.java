@@ -59,7 +59,7 @@ public class Webserver {
                     }
             );
         }).before("/api/*", this::protect)
-        .start(Mod.CONFIG.address.getHostString(), Mod.CONFIG.address.getPort());;
+        .start(Mod.CONFIG.address.getHostString(), Mod.CONFIG.address.getPort());
     }
 
     /**

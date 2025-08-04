@@ -1,0 +1,37 @@
+<script lang="ts">
+	import * as cookie from "cookie";
+
+	const uuid = cookie.parse(document.cookie).UUID;
+</script>
+
+<div class="container">
+	<img src="https://crafatar.com/avatars/{uuid}?overlay&size=8" alt="your minecraft head" width="32" />
+	<a class="codicon codicon-sign-out" href="/logout" aria-label="logout"></a>
+	<button class="codicon codicon-symbol-color" aria-label="themes"></button>
+	<button class="codicon codicon-info" aria-label="information"></button>
+</div>
+
+<style lang="scss">
+	.container {
+		align-items: center;
+		padding: 0 10px;
+		display: flex;
+		gap: 5px;
+	}
+
+	img {
+		image-rendering: pixelated;
+		border-radius: 5px;
+	}
+
+	.codicon {
+		transition: background-color 150ms ease-in-out;
+		border-radius: 5px;
+		padding: 3px;
+
+		&:hover,
+		&:focus {
+			background-color: var(--vscode-list-hoverBackground);
+		}
+	}
+</style>
