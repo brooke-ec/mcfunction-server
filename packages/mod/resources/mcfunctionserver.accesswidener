@@ -1,2 +1,3 @@
 accessWidener v2 named
 accessible field net/minecraft/server/ServerFunctionLibrary LISTER Lnet/minecraft/resources/FileToIdConverter;
+accessible field net/minecraft/commands/CommandSourceStack source Lnet/minecraft/commands/CommandSource;

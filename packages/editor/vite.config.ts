@@ -7,7 +7,7 @@ export default defineConfig({
 	plugins: [sveltekit(), custom(), nodePolyfills({ include: ["path"] })],
 	server: {
 		proxy: {
-			"/api/": {
+			"^/(api)|(login)|(logout)/?.*": {
 				target: "http://localhost:7070",
 				changeOrigin: true,
 			},

@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,6 +24,9 @@ public class ModConfig {
 
     /** The host for the webserver to listen on */
     public InetSocketAddress address = new InetSocketAddress("0.0.0.0", 7070);
+
+    /** The URL the editor is accessible at */
+    public URI editorUrl = URI.create("http://localhost:7070");
 
     /**
      * Load the configuration file or the default
