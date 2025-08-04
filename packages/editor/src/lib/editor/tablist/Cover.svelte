@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { refresh } from "../Editor.svelte";
 	import { createFunction } from "../explorer/tree/Tree.svelte";
 	import { getActive } from "./model.svelte";
+	import { refresh } from "../Editor.svelte";
+	import { info } from "$lib/session";
 
 	let tab = $derived(getActive());
 </script>
@@ -35,6 +36,14 @@
 					</li>
 				</ul>
 			</div>
+			{#if info.homepage}
+				<ul>
+					<li>
+						<span class="codicon codicon-home"></span>
+						<a href={info.homepage.url} target="_blank">{info.homepage.name}</a>
+					</li>
+				</ul>
+			{/if}
 		{:else if tab.loading}
 			<span class="loader"></span>
 			<span class="caption">Loading...</span>
@@ -64,16 +73,16 @@
 	.suggestions {
 		display: flex;
 		gap: 10vw;
+	}
 
-		ul {
-			list-style: none;
+	ul {
+		list-style: none;
 
-			li {
-				gap: 10px;
-				display: flex;
-				margin: 5px 0;
-				align-items: center;
-			}
+		li {
+			gap: 10px;
+			display: flex;
+			margin: 5px 0;
+			align-items: center;
 		}
 	}
 

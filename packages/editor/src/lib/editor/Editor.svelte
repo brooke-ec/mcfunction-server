@@ -12,6 +12,7 @@
 	import { isLoading, setLoading } from "../../routes/Loading.svelte";
 	import type { Attachment } from "svelte/attachments";
 	import Explorer from "./explorer/Explorer.svelte";
+	import Toaster from "./toaster/Toaster.svelte";
 	import TabList from "./tablist/TabList.svelte";
 	import { create } from "./monaco";
 
@@ -23,6 +24,8 @@
 		return () => editor.dispose();
 	};
 </script>
+
+<Toaster />
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <main {@attach attach} tabindex="0">

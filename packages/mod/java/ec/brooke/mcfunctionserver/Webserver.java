@@ -7,16 +7,14 @@ import io.javalin.http.BadRequestResponse;
 import io.javalin.http.Context;
 import io.javalin.http.NotFoundResponse;
 import io.javalin.http.UnauthorizedResponse;
+import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Comparator;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -46,6 +44,7 @@ public class Webserver {
             config.router.apiBuilder(() -> {
                         get("/login/<token>", this::login);
                         get("/logout", this::logout);
+                        get("/info", this::info);
                         path("/api", () -> {
                                     get("/index", this::index);
                                     path("/file/<path>", () -> {
@@ -78,6 +77,17 @@ public class Webserver {
 
     private void protect(Context ctx) {
         if (ctx.sessionAttribute(SESSION_UUID) == null) throw new UnauthorizedResponse("Please authenticate first");
+    }
+
+    private void info(Context ctx) {
+        ctx.json(Map.of(
+                "contributors", Mod.METADATA.getContributors().stream().map(Person::getName).toList(),
+                "authenticated", ctx.sessionAttribute(SESSION_UUID) != null,
+                "version", Mod.METADATA.getVersion().getFriendlyString(),
+                "namespace", Mod.CONFIG.namespace,
+                "homepage", Mod.CONFIG.homepage,
+                "title", Mod.CONFIG.titleName
+        ));
     }
 
     private void login(Context ctx) {

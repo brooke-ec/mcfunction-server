@@ -19,17 +19,34 @@ import java.nio.file.Path;
 
 public class ModConfig {
 
-    /** The namespace used for scoping functions */
+    /**
+     * The namespace used for scoping functions
+     */
     public String namespace = "editor";
 
-    /** The host for the webserver to listen on */
+    /**
+     * The host for the webserver to listen on
+     */
     public InetSocketAddress address = new InetSocketAddress("0.0.0.0", 7070);
 
-    /** The URL the editor is accessible at */
+    /**
+     * The URL the editor is accessible at
+     */
     public URI editorUrl = URI.create("http://localhost:7070");
 
     /**
+     * The name segment used in the title of the editor
+     */
+    public String titleName = "mcfunction-server";
+
+    /**
+     * Custom link to be displayed in the editor
+     */
+    public CustomLink homepage = new CustomLink("Example Link", URI.create("https://example.com/"));
+
+    /**
      * Load the configuration file or the default
+     *
      * @return The loaded configuration file
      */
     public static ModConfig load() {
@@ -76,5 +93,7 @@ public class ModConfig {
             return new InetSocketAddress(split[0], Integer.parseInt(split[1]));
         }
     }
+
+    public record CustomLink(String name, URI url) {}
 
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Attachment } from "svelte/attachments";
 	import { getActive, getTabs } from "./model.svelte";
+	import { info } from "$lib/session";
 	import Cover from "./Cover.svelte";
 	import Sortable from "sortablejs";
 	import Tab from "./Tab.svelte";
@@ -18,7 +19,7 @@
 
 <svelte:head>
 	<title>
-		{(active ? (active.dirty ? "● " : "") + active.name + " - " : "") + "mcfunction-server"}
+		{(active ? (active.dirty ? "● " : "") + active.name + " - " : "") + info.title}
 	</title>
 </svelte:head>
 

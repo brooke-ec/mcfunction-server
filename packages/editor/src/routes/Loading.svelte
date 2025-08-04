@@ -14,7 +14,7 @@
 
 <svelte:head>
 	{#if loading}
-		<title>loading - mcfunction-server</title>
+		<title>loading...</title>
 	{/if}
 </svelte:head>
 
