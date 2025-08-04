@@ -14,13 +14,11 @@
 	import Explorer from "./explorer/Explorer.svelte";
 	import Toaster from "./toaster/Toaster.svelte";
 	import TabList from "./tablist/TabList.svelte";
-	import { create } from "./monaco";
+	import { create, editor } from "./monaco";
 
 	const attach: Attachment<HTMLElement> = (element) => {
 		setLoading(true);
-		const editor = create(element);
-		editor.onDidScrollChange(() => setLoading(false));
-
+		create(element).then(() => editor.onDidScrollChange(() => setLoading(false)));
 		return () => editor.dispose();
 	};
 </script>

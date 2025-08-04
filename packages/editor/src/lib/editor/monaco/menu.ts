@@ -1,5 +1,5 @@
 import { Separator } from "monaco-editor/esm/vs/base/common/actions";
-import type { ActionDescriptor } from "./action";
+import { ActionDescriptor } from "./action";
 import { editor } from ".";
 
 const CONTRIBUTION_ID = "editor.contrib.contextmenu";
@@ -12,7 +12,12 @@ type ContextMenuController = import("monaco-editor").editor.IEditorContribution 
 	_doShowContextMenu: (actions: (IEditorAction | Separator)[], anchor: Anchor) => void;
 };
 
-export function showContextmenu(anchor: Anchor, actions: (ActionDescriptor | "separator")[]) {
+export type BasicAction = {
+	run: () => void | Promise<void>;
+	label: string;
+};
+
+export function showContextmenu(anchor: Anchor, actions: (ActionDescriptor | BasicAction | "separator")[]) {
 	if (!editor) throw new Error("Editor is not initialized");
 
 	const controller = editor.getContribution(CONTRIBUTION_ID) as ContextMenuController | null;
@@ -21,13 +26,20 @@ export function showContextmenu(anchor: Anchor, actions: (ActionDescriptor | "se
 	controller._doShowContextMenu(
 		actions.map((action) => {
 			if (action === "separator") return new Separator();
-			const definition = action.definition;
-			return {
-				id: definition.id,
-				label: definition.alias,
-				enabled: true,
-				run: definition.run,
-			};
+			else if (action instanceof ActionDescriptor)
+				return {
+					label: action.definition.alias,
+					run: action.definition.run,
+					id: action.definition.id,
+					enabled: true,
+				};
+			else
+				return {
+					id: `custom.basic.${crypto.randomUUID()}`,
+					label: action.label,
+					run: action.run,
+					enabled: true,
+				};
 		}),
 		anchor,
 	);

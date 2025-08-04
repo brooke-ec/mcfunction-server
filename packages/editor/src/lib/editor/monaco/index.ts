@@ -1,6 +1,6 @@
 import EditorWorker from "monaco-editor/esm/vs/editor/editor.worker?worker";
 import grammar from "syntax-mcfunction/mcfunction.tmLanguage.json";
-import theme from "@catppuccin/vscode/themes/macchiato.json?theme";
+import { loadSelectedTheme, selectedTheme } from "./theme";
 import { wireTmGrammars } from "monaco-editor-textmate";
 import configuration from "./language/configuration";
 import onigasm from "onigasm/lib/onigasm.wasm?url";
@@ -26,17 +26,20 @@ const registry = new Registry({
 	}),
 });
 
-loadWASM(onigasm)
-	.catch(() => null)
-	.then(() => wireTmGrammars(monaco, registry, new Map([[SCOPE_MCFUNCTION, grammar.scopeName]])));
-
-monaco.editor.defineTheme("catppuccin-macchiato", theme);
+const tasks = [
+	loadSelectedTheme(),
+	loadWASM(onigasm)
+		.catch(() => null)
+		.then(() => wireTmGrammars(monaco, registry, new Map([[SCOPE_MCFUNCTION, grammar.scopeName]]))),
+];
 
 export let renaming: monaco.editor.IContextKey<boolean>;
 export let editor: monaco.editor.IStandaloneCodeEditor;
 
-export function create(element: HTMLElement) {
-	editor = monaco.editor.create(element, { theme: "catppuccin-macchiato", model: DEFAULT_MODEL });
+export async function create(element: HTMLElement) {
+	await Promise.all(tasks);
+
+	editor = monaco.editor.create(element, { theme: selectedTheme(), model: DEFAULT_MODEL });
 
 	renaming = editor.createContextKey("renaming", false);
 	for (const action of Object.values(actions)) action.register();

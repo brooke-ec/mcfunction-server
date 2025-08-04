@@ -1,7 +1,19 @@
 <script lang="ts">
 	import * as cookie from "cookie";
+	import { showContextmenu } from "../monaco/menu";
+	import { switchTheme, themes } from "../monaco/theme";
 
 	const uuid = cookie.parse(document.cookie).UUID;
+
+	function selectTheme(e: MouseEvent) {
+		showContextmenu(
+			e,
+			themes.map((id) => ({
+				label: id.replace(/(^|-)./g, (x) => " " + x[x.length - 1].toUpperCase()),
+				run: () => switchTheme(id),
+			})),
+		);
+	}
 </script>
 
 <div class="container">
@@ -11,7 +23,7 @@
 		<span class="codicon codicon-account" style="font-size: 32px;"></span>
 	{/if}
 	<a class="codicon codicon-sign-out" href="/logout" aria-label="logout"></a>
-	<button class="codicon codicon-symbol-color" aria-label="themes"></button>
+	<button class="codicon codicon-symbol-color" aria-label="change theme" onclick={selectTheme}></button>
 	<button class="codicon codicon-info" aria-label="information"></button>
 </div>
 

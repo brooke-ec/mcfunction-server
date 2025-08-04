@@ -1,6 +1,6 @@
 <script>
 	import Tree from "./tree/Tree.svelte";
-	import User from "./User.svelte";
+	import User from "./Settings.svelte";
 </script>
 
 <div class="explorer">
