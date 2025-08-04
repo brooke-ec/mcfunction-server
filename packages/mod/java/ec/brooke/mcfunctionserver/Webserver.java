@@ -72,7 +72,7 @@ public class Webserver {
         byte[] bytes = new byte[24];
         random.nextBytes(bytes);
         String token = base64.encodeToString(bytes);
-        tokens.inverse().put(uuid, token);
+        synchronized (tokens) { tokens.inverse().put(uuid, token); }
         return token;
     }
 
@@ -83,10 +83,12 @@ public class Webserver {
     private void login(Context ctx) {
         String token = ctx.pathParam("token");
 
-        if (tokens.containsKey(token)) {
+        UUID uuid;
+        synchronized (tokens) { uuid = tokens.remove(token); }
+
+        if (uuid != null) {
             if (ctx.req().getSession() != null) ctx.req().changeSessionId();
 
-            UUID uuid = tokens.remove(token);
             ctx.sessionAttribute(SESSION_UUID, uuid);
             ctx.cookie(IDENTITY_COOKIE, uuid.toString()).redirect("/");
         } else if (ctx.sessionAttributeMap().containsKey(SESSION_UUID)) ctx.redirect("/");
@@ -95,6 +97,7 @@ public class Webserver {
 
     private void logout(Context ctx) {
         ctx.req().getSession().invalidate();
+        ctx.removeCookie(IDENTITY_COOKIE);
         ctx.redirect("/");
     }
 

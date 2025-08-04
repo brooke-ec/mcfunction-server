@@ -5,7 +5,11 @@
 </script>
 
 <div class="container">
-	<img src="https://crafatar.com/avatars/{uuid}?overlay&size=8" alt="your minecraft head" width="32" />
+	{#if !uuid?.match(/^[0-]*$/)}
+		<img src="https://crafatar.com/avatars/{uuid}?overlay&size=8" alt="your minecraft head" width="32" />
+	{:else}
+		<span class="codicon codicon-account" style="font-size: 32px;"></span>
+	{/if}
 	<a class="codicon codicon-sign-out" href="/logout" aria-label="logout"></a>
 	<button class="codicon codicon-symbol-color" aria-label="themes"></button>
 	<button class="codicon codicon-info" aria-label="information"></button>
@@ -24,7 +28,8 @@
 		border-radius: 5px;
 	}
 
-	.codicon {
+	a,
+	button {
 		transition: background-color 150ms ease-in-out;
 		border-radius: 5px;
 		padding: 3px;
