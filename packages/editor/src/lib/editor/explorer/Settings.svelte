@@ -1,10 +1,8 @@
 <script lang="ts">
+	import InfoDialog, * as dialog from "./InfoDialog.svelte";
 	import { switchTheme, themes } from "../monaco/theme";
 	import { showContextmenu } from "../monaco/menu";
-	import InfoDialog, * as dialog from "./InfoDialog.svelte";
-	import * as cookie from "cookie";
-
-	const uuid = cookie.parse(document.cookie).UUID;
+	import { info } from "$lib/session";
 
 	function selectTheme(e: MouseEvent) {
 		showContextmenu(
@@ -20,8 +18,8 @@
 <InfoDialog />
 
 <div class="container">
-	{#if !uuid?.match(/^[0-]*$/)}
-		<img src="https://crafatar.com/avatars/{uuid}?overlay&size=8" alt="your minecraft head" width="32" />
+	{#if !info.uuid?.match(/^[0-]*$/)}
+		<img src="https://crafatar.com/avatars/{info.uuid}?overlay&size=8" alt="your minecraft head" width="32" />
 	{:else}
 		<span class="codicon codicon-account" style="font-size: 32px;"></span>
 	{/if}

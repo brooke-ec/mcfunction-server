@@ -24,7 +24,7 @@ public class Mod implements ModInitializer {
         new AuthenticateCommand().register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             // Initialize datapack read/write wrapper
-            Path root = server.getWorldPath(LevelResource.DATAPACK_DIR).resolve("editor");
+            Path root = server.getWorldPath(LevelResource.DATAPACK_DIR).resolve(CONFIG.datapackName);
             PackAccessor accessor = new PackAccessor(root);
             try { accessor.validate(); } catch (IOException e) { throw new RuntimeException(e); }
 

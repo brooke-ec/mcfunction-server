@@ -14,7 +14,6 @@
 		"@sveltejs/kit": "^2.22.2",
 		"@sveltejs/vite-plugin-svelte": "^5.1.0",
 		"@types/sortablejs": "^1.15.8",
-		"cookie": "^1.0.2",
 		"greset": "^2.0.0",
 		"mc-dp-icons": "github:FuncFusion/mc-dp-icons",
 		"melt": "^0.38.0",

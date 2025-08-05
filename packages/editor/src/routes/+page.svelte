@@ -7,8 +7,8 @@
 	import "$lib/global.scss";
 </script>
 
-{#await info.task then { authenticated }}
-	{#if authenticated}
+{#await info.task then { uuid }}
+	{#if uuid}
 		<!-- Import the editor functionality completely on the clientside -->
 		{#await import("$lib/editor/Editor.svelte") then { default: Editor }}
 			<Editor />

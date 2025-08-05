@@ -3,8 +3,8 @@ import { ofetch } from "ofetch";
 
 export type Info = {
 	homepage: { name: string; url: string } | null;
-	authenticated: boolean;
 	contributors: string[];
+	uuid: string | null;
 	namespace: string;
 	version: string;
 	title: string;

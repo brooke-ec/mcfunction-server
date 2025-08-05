@@ -20,6 +20,11 @@ import java.nio.file.Path;
 public class ModConfig {
 
     /**
+     * The name of the datapack where the functions are stored.
+     */
+    public String datapackName = "mcfunction-server";
+
+    /**
      * The namespace used for scoping functions
      */
     public String namespace = "editor";

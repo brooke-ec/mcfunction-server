@@ -10,6 +10,7 @@ import io.javalin.http.UnauthorizedResponse;
 import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -24,7 +25,6 @@ public class Webserver {
     public static final String COPY_COMMAND = "COPY ";
 
     public static final String SESSION_UUID = "UUID";
-    public static final String IDENTITY_COOKIE = "UUID";
 
     private static final Base64.Encoder base64 = Base64.getUrlEncoder();
     private static final SecureRandom random = new SecureRandom();
@@ -61,6 +61,17 @@ public class Webserver {
         .start(Mod.CONFIG.address.getHostString(), Mod.CONFIG.address.getPort());
     }
 
+    private void info(Context ctx) {
+        ctx.json(new SessionInfo(
+                Mod.METADATA.getContributors().stream().map(Person::getName).toArray(String[]::new),
+                Mod.METADATA.getVersion().getFriendlyString(),
+                ctx.sessionAttribute(SESSION_UUID),
+                Mod.CONFIG.namespace,
+                Mod.CONFIG.homepage,
+                Mod.CONFIG.titleName
+        ));
+    }
+
     /**
      * Generates a new token for the given UUID.
      *
@@ -79,17 +90,6 @@ public class Webserver {
         if (ctx.sessionAttribute(SESSION_UUID) == null) throw new UnauthorizedResponse("Please authenticate first");
     }
 
-    private void info(Context ctx) {
-        ctx.json(Map.of(
-                "contributors", Mod.METADATA.getContributors().stream().map(Person::getName).toList(),
-                "authenticated", ctx.sessionAttribute(SESSION_UUID) != null,
-                "version", Mod.METADATA.getVersion().getFriendlyString(),
-                "namespace", Mod.CONFIG.namespace,
-                "homepage", Mod.CONFIG.homepage,
-                "title", Mod.CONFIG.titleName
-        ));
-    }
-
     private void login(Context ctx) {
         String token = ctx.pathParam("token");
 
@@ -98,16 +98,14 @@ public class Webserver {
 
         if (uuid != null) {
             if (ctx.req().getSession() != null) ctx.req().changeSessionId();
-
             ctx.sessionAttribute(SESSION_UUID, uuid);
-            ctx.cookie(IDENTITY_COOKIE, uuid.toString()).redirect("/");
+            ctx.redirect("/");
         } else if (ctx.sessionAttributeMap().containsKey(SESSION_UUID)) ctx.redirect("/");
         else ctx.redirect("/");
     }
 
     private void logout(Context ctx) {
         ctx.req().getSession().invalidate();
-        ctx.removeCookie(IDENTITY_COOKIE);
         ctx.redirect("/");
     }
 
@@ -171,4 +169,13 @@ public class Webserver {
             throw new BadRequestResponse("Invalid PATCH command");
         }
     }
+
+    private record SessionInfo(
+            String[] contributors,
+            String version,
+            @Nullable UUID uuid,
+            String namespace,
+            ModConfig.CustomLink homepage,
+            String title
+    ) {}
 }
