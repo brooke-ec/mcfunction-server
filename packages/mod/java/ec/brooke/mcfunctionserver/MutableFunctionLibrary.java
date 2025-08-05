@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.CloseShieldInputStream;
+import org.apache.commons.io.input.TeeInputStream;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -194,17 +195,17 @@ public class MutableFunctionLibrary {
     /**
      * Writes content to a specific mcfunction file in the pack.
      * @param location The ResourceLocation of the mcfunction file.
-     * @param content The InputStream containing the content to write.
+     * @param input The InputStream containing the content to write.
      * @throws FileNotFoundException if the path is invalid.
      * @throws IOException if an I/O error occurs while writing to the file.
      */
-    public void put(ResourceLocation location, InputStream content) throws IOException {
+    public void put(ResourceLocation location, InputStream input) throws IOException {
         Path path = getFunctionPath(location);
         FileUtil.createDirectoriesSafe(path.getParent());
-        load(location, CloseShieldInputStream.wrap(content));
-        try (OutputStream out = new FileOutputStream(path.toFile())) {
-            content.transferTo(out);
-        }
+        try (
+                OutputStream out = new FileOutputStream(path.toFile());
+                TeeInputStream tee = new TeeInputStream(input, out, true)
+        ) { load(location, tee); }
     }
 
     /**
