@@ -43,6 +43,7 @@
 		select(node.id);
 		const visible: (ActionDescriptor | "separator")[] = [];
 
+		if (!children) visible.push(actions.copyPath, "separator");
 		if (children) visible.push(actions.newFunction, actions.newDirectory, "separator");
 		if (!isRoot) visible.push(actions.treeCut, actions.treeCopy);
 		if (children && canPaste()) visible.push(actions.treePaste);

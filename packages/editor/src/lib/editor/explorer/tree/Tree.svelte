@@ -1,7 +1,10 @@
 <script lang="ts" module>
 	import { ModelNode, popl, type ModelRoot } from "./model.svelte";
+	import { ModelTab } from "$lib/editor/tablist/model.svelte";
 	import * as monaco from "../../monaco";
 	import { Tree } from "melt/builders";
+	import { info } from "$lib/session";
+	import { ofetch } from "ofetch";
 
 	let model = $state<ModelRoot>(ModelNode.create());
 	export const getModel = () => model;
@@ -91,6 +94,12 @@
 
 	export const select = (id: string) => tree?.select(id);
 
+	export function copyPath() {
+		if (tree?.selected === undefined) throw new Error("No item selected");
+		const path = `${info.namespace}:${model.resolve(tree.selected).path.slice(1)}`;
+		navigator.clipboard.writeText(path);
+	}
+
 	export function selected() {
 		if (tree?.selected === undefined) throw new Error("No item selected");
 		return tree.selected;
@@ -128,8 +137,6 @@
 <script lang="ts">
 	import Node from "./Node.svelte";
 	import { onMount } from "svelte";
-	import { ofetch } from "ofetch";
-	import { ModelTab } from "$lib/editor/tablist/model.svelte";
 
 	tree = new Tree({ items: [model] });
 	onMount(model.refresh.bind(model));

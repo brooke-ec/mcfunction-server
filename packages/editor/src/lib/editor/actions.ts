@@ -76,6 +76,12 @@ export const treeRefresh = new ActionDescriptor({
 	run: refresh,
 });
 
+export const copyPath = new ActionDescriptor({
+	id: "custom.tree.copy-path",
+	label: "Copy Function Path",
+	run: tree.copyPath,
+});
+
 export const tabSave = new ActionDescriptor({
 	id: "custom.tab.save",
 	label: "Save Active Tab",

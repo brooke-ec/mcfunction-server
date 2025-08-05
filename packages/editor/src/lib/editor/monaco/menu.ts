@@ -28,7 +28,7 @@ export function showContextmenu(anchor: Anchor, actions: (ActionDescriptor | Bas
 			if (action === "separator") return new Separator();
 			else if (action instanceof ActionDescriptor)
 				return {
-					label: action.definition.alias,
+					label: action.definition.alias ?? action.definition.label,
 					run: action.definition.run,
 					id: action.definition.id,
 					enabled: true,
