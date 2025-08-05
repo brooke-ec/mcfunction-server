@@ -104,7 +104,9 @@ public class MutableFunctionLibrary {
      */
     public void reload() throws IOException {
         functions.clear();
-        for (ResourceLocation location : index()) load(location, get(location));
+        for (ResourceLocation location : index()) try {
+            load(location, get(location));
+        } catch (IllegalArgumentException ignored) {}
     }
 
     /**

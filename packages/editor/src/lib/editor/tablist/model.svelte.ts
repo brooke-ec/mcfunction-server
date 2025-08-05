@@ -1,6 +1,7 @@
 import { DEFAULT_MODEL, editor, SCOPE_MCFUNCTION } from "../monaco";
 import * as monaco from "monaco-editor";
-import { ofetch } from "ofetch";
+import { ofetch, type FetchContext } from "ofetch";
+import { addToast } from "../toaster/Toaster.svelte";
 
 let active = $state<ModelTab | null>(null);
 let tabs = $state<ModelTab[]>([]);
@@ -92,12 +93,17 @@ export class ModelTab {
 		if (!this.dirty) return;
 
 		const id = this.currentId;
+		const model = this.model;
 
 		await ofetch(this.path, {
 			body: this.model.getValue(),
 			baseURL: "/api/file",
 			method: "PUT",
-		}).catchToast();
+		}).catch((e: FetchContext) => {
+			if (e.response?.status !== 400) throw e;
+			const error: string = e.response._data!.title;
+			addToast({ data: error });
+		});
 
 		this.savedId = id;
 	}

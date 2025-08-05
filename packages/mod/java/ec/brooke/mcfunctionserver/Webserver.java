@@ -140,7 +140,8 @@ public class Webserver {
     }
 
     private void write(Context ctx) throws IOException {
-        accessor.put(parsePath(ctx), ctx.bodyInputStream());
+        try { accessor.put(parsePath(ctx), ctx.bodyInputStream()); }
+        catch (IllegalArgumentException e) { throw new BadRequestResponse(e.getMessage()); }
         ctx.status(201);
     }
 
