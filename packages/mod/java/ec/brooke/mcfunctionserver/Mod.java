@@ -4,12 +4,10 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
-import net.minecraft.world.level.storage.LevelResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 public class Mod implements ModInitializer {
 
@@ -23,10 +21,9 @@ public class Mod implements ModInitializer {
     public void onInitialize() {
         new AuthenticateCommand().register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            // Initialize datapack read/write wrapper
-            Path root = server.getWorldPath(LevelResource.DATAPACK_DIR).resolve(CONFIG.datapackName);
-            PackAccessor accessor = new PackAccessor(root);
-            try { accessor.validate(); } catch (IOException e) { throw new RuntimeException(e); }
+            // Initialize datapack function library wrapper
+            MutableFunctionLibrary accessor = new MutableFunctionLibrary(server, CONFIG.datapackName);
+            try { accessor.setup(); } catch (IOException e) { throw new RuntimeException(e); }
 
             // Start the webserver on a new thread
             webserver = new Webserver(accessor);

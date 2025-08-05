@@ -15,7 +15,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.Base64;
+import java.util.Comparator;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -29,9 +32,9 @@ public class Webserver {
     private static final Base64.Encoder base64 = Base64.getUrlEncoder();
     private static final SecureRandom random = new SecureRandom();
     private final BiMap<String, UUID> tokens = HashBiMap.create();
-    private final PackAccessor accessor;
+    public final MutableFunctionLibrary accessor;
 
-    public Webserver(PackAccessor accessor) {
+    public Webserver(MutableFunctionLibrary accessor) {
         this.accessor = accessor;
     }
 

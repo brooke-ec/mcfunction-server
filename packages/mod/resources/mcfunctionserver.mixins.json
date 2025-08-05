@@ -4,6 +4,7 @@
   "package": "ec.brooke.mcfunctionserver.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "ServerFunctionLibraryMixin"
   ],
   "client": [
   ],
