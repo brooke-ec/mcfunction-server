@@ -79,7 +79,9 @@ export class ModelTab {
 		const first = this.currentId === 0;
 
 		this.loading = true;
-		const content = await ofetch(this.path, { baseURL: "/api/file" }).catchToast();
+		const { content, error } = await ofetch<{ content: string; error: string | null }>(this.path, {
+			baseURL: "/api/file",
+		}).catchToast();
 		this.loading = false;
 
 		if (content === this.model.getValue()) return;
@@ -87,24 +89,45 @@ export class ModelTab {
 		if (first) this.model.setValue(content);
 		else this.model.pushEditOperations([], [{ range: this.model.getFullModelRange(), text: content }], () => null);
 		this.savedId = this.currentId;
+		this.setError(error);
 	}
 
 	public async save() {
 		if (!this.dirty) return;
 
 		const id = this.currentId;
-		const model = this.model;
 
-		await ofetch(this.path, {
+		const { error } = await ofetch<{ error: string | null }>(this.path, {
 			body: this.model.getValue(),
 			baseURL: "/api/file",
 			method: "PUT",
-		}).catch((e: FetchContext) => {
-			if (e.response?.status !== 400) throw e;
-			const error: string = e.response._data!.title;
-			addToast({ data: error });
 		});
 
+		this.setError(error);
 		this.savedId = id;
+	}
+
+	private setError(error: string | null) {
+		if (error === null) monaco.editor.setModelMarkers(this.model, "error", []);
+		else {
+			const match = /line (\d)/g.exec(error);
+			const lineno = match ? parseInt(match[1]) : null;
+			const range = lineno
+				? {
+						startLineNumber: lineno,
+						endLineNumber: lineno,
+						startColumn: 0,
+						endColumn: this.model.getLineLength(lineno) + 1,
+					}
+				: this.model.getFullModelRange();
+
+			monaco.editor.setModelMarkers(this.model, "error", [
+				{
+					...range,
+					message: error,
+					severity: monaco.MarkerSeverity.Error,
+				},
+			]);
+		}
 	}
 }

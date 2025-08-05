@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.TeeInputStream;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -40,6 +41,7 @@ import java.util.stream.Stream;
  */
 public class MutableFunctionLibrary {
     private final Map<ResourceLocation, CommandFunction<CommandSourceStack>> functions = new ConcurrentHashMap<>();
+    private final Map<ResourceLocation, String> errors = new ConcurrentHashMap<>();
     private final CommandDispatcher<CommandSourceStack> dispatcher;
     private final CommandSourceStack compilationSource;
     public static final String DATA_DIR = "data";
@@ -104,9 +106,7 @@ public class MutableFunctionLibrary {
      */
     public void reload() throws IOException {
         functions.clear();
-        for (ResourceLocation location : index()) try {
-            load(location, get(location));
-        } catch (IllegalArgumentException ignored) {}
+        for (ResourceLocation location : index()) load(location, get(location));
     }
 
     /**
@@ -184,6 +184,15 @@ public class MutableFunctionLibrary {
     }
 
     /**
+     * Retrieves any errors associated with a specific mcfunction file.
+     * @param location The ResourceLocation of the mcfunction file.
+     * @return A string containing the error message if an error exists, or null if no error is associated with the file.
+     */
+    public @Nullable String getError(ResourceLocation location) {
+        return errors.get(location);
+    }
+
+    /**
      * Retrieves an InputStream for a specific mcfunction file in the pack.
      * @param location The ResourceLocation of the mcfunction file.
      * @return An InputStream for the mcfunction file.
@@ -204,8 +213,8 @@ public class MutableFunctionLibrary {
         Path path = getFunctionPath(location);
         FileUtil.createDirectoriesSafe(path.getParent());
         try (
-                OutputStream out = new FileOutputStream(path.toFile());
-                TeeInputStream tee = new TeeInputStream(input, out, true)
+            OutputStream out = new FileOutputStream(path.toFile());
+            TeeInputStream tee = new TeeInputStream(input, out, true)
         ) { load(location, tee); }
     }
 
@@ -274,9 +283,13 @@ public class MutableFunctionLibrary {
     private void load(ResourceLocation location, InputStream input) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
             functions.put(location, CommandFunction.fromLines(location, this.dispatcher, this.compilationSource, reader.lines().toList()));
+        } catch (IllegalArgumentException e) {
+            errors.put(location, e.getMessage());
+            return;
         }
-    }
 
+        errors.remove(location);
+    }
 
     @FunctionalInterface
     private interface IOBiConsumer<T, U> {

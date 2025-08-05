@@ -10,15 +10,15 @@ import io.javalin.http.UnauthorizedResponse;
 import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.resources.ResourceLocation;
+import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Comparator;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
@@ -131,18 +131,18 @@ public class Webserver {
         }
     }
 
-    private void read(Context ctx) {
-        try {
-            ctx.result(accessor.get(parsePath(ctx))).contentType("text/mcfunction");
-        } catch (FileNotFoundException e) {
-            throw new NotFoundResponse("File not found");
-        }
+    private void read(Context ctx) throws IOException {
+        ResourceLocation location = parsePath(ctx);
+        try (InputStream stream = accessor.get(location)) {
+            ctx.json(new ReadResponse(IOUtils.toString(stream, StandardCharsets.UTF_8), accessor.getError(location)));
+        } catch (FileNotFoundException e) { throw new NotFoundResponse("File Not Found"); }
     }
 
     private void write(Context ctx) throws IOException {
-        try { accessor.put(parsePath(ctx), ctx.bodyInputStream()); }
+        ResourceLocation location = parsePath(ctx);
+        try { accessor.put(location, ctx.bodyInputStream()); }
         catch (IllegalArgumentException e) { throw new BadRequestResponse(e.getMessage()); }
-        ctx.status(201);
+        ctx.json(new WriteResponse(accessor.getError(location))).status(201);
     }
 
     private void remove(Context ctx) throws IOException {
@@ -182,4 +182,8 @@ public class Webserver {
             ModConfig.CustomLink homepage,
             String title
     ) {}
+
+    private record ReadResponse(String content, @Nullable String error) {}
+
+    private record WriteResponse(@Nullable String error) {}
 }
