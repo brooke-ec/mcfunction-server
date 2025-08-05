@@ -3,6 +3,7 @@ import * as tree from "./explorer/tree/Tree.svelte";
 import { ActionDescriptor } from "./monaco/action";
 import { KeyMod, KeyCode } from "monaco-editor";
 import * as tabs from "./tablist/model.svelte";
+import { goto } from "$app/navigation";
 
 export const newFunction = new ActionDescriptor({
 	id: "custom.tree.new-function",
@@ -88,4 +89,10 @@ export const tabSaveAll = new ActionDescriptor({
 	label: "Save All Tabs",
 	keybindings: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyS],
 	run: () => tabs.getTabs().forEach((tab) => tab.save()),
+});
+
+export const logOut = new ActionDescriptor({
+	id: "custom.log-out",
+	label: "Log Out",
+	run: () => goto("/logout"),
 });
