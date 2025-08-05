@@ -4,6 +4,7 @@ import { ActionDescriptor } from "./monaco/action";
 import { KeyMod, KeyCode } from "monaco-editor";
 import * as tabs from "./tablist/model.svelte";
 import { goto } from "$app/navigation";
+import { editor } from "./monaco";
 
 export const newFunction = new ActionDescriptor({
 	id: "custom.tree.new-function",
@@ -101,4 +102,17 @@ export const logOut = new ActionDescriptor({
 	id: "custom.log-out",
 	label: "Log Out",
 	run: () => goto("/logout"),
+});
+
+export const commandPalette = new ActionDescriptor({
+	id: "custom.command-palette",
+	label: "Open Command Palette",
+	keybindings: [KeyMod.CtrlCmd | KeyMod.Shift | KeyCode.KeyP],
+	run: () => editor.trigger("keyboard", "editor.action.quickCommand", null),
+});
+
+export const closeTab = new ActionDescriptor({
+	id: "custom.tab.close",
+	label: "Close Active Tab",
+	run: () => tabs.getActive()?.close(),
 });
