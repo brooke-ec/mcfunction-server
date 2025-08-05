@@ -23,7 +23,6 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.input.CloseShieldInputStream;
 import org.apache.commons.io.input.TeeInputStream;
 
 import java.io.*;
@@ -89,7 +88,7 @@ public class MutableFunctionLibrary {
 
         try (
                 BufferedWriter writer = Files.newBufferedWriter(meta, StandardCharsets.UTF_8);
-                InputStream reader = MutableFunctionLibrary.class.getResourceAsStream("/pack.mcmeta.template");
+                InputStream reader = MutableFunctionLibrary.class.getResourceAsStream("/pack.mcmeta.template")
         ) {
             if (reader == null) throw new IOException("Template file for pack meta not found");
             int version = DetectedVersion.BUILT_IN.getPackVersion(PackType.SERVER_DATA);
@@ -125,7 +124,7 @@ public class MutableFunctionLibrary {
         PackLocationInfo location = new PackLocationInfo("", Component.empty(), PackSource.WORLD, Optional.empty());
         try (
                 PathPackResources resources = new PathPackResources(location, root);
-                MultiPackResourceManager manager = new MultiPackResourceManager(PackType.SERVER_DATA, List.of(resources));
+                MultiPackResourceManager manager = new MultiPackResourceManager(PackType.SERVER_DATA, List.of(resources))
         ) {
             return ServerFunctionLibrary.LISTER.listMatchingResources(manager).keySet().stream().map(ServerFunctionLibrary.LISTER::fileToId).toList();
         }

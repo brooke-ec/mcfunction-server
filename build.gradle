@@ -64,6 +64,11 @@ tasks.withType(JavaCompile).configureEach {
     }
 }
 
+shadowJar {
+    configurations = [project.configurations.shadow]
+    exclude("META-INF")
+}
+
 java {
     def javaVersion = JavaVersion.toVersion(targetJavaVersion)
     if (JavaVersion.current() < javaVersion) {
@@ -83,4 +88,12 @@ jar {
     from("LICENSE") {
         rename { "${it}_${project.archivesBaseName}" }
     }
+}
+
+remapJar {
+    // wait until the shadowJar is done
+    dependsOn(shadowJar)
+    mustRunAfter(shadowJar)
+    // Set the input jar for the task. Here use the shadow Jar that include the .class of the transitive dependency
+    inputFile = file(shadowJar.archivePath)
 }

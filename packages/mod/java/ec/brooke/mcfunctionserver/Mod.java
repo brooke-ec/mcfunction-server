@@ -19,6 +19,8 @@ public class Mod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+        LOGGER.info("Initializing {} version {}", MOD_ID, METADATA.getVersion().getFriendlyString());
+
         new AuthenticateCommand().register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             // Initialize datapack function library wrapper
@@ -27,7 +29,9 @@ public class Mod implements ModInitializer {
 
             // Start the webserver on a new thread
             webserver = new Webserver(accessor);
-            new Thread(webserver::run).start();
+            Thread thread = new Thread(webserver::run);
+            thread.setContextClassLoader(this.getClass().getClassLoader());
+            thread.start();
         });
     }
 }
