@@ -134,7 +134,7 @@ export class ModelNode implements TreeItem {
 
 		// Update the path in the tab list
 		getTabs().forEach((tab) => {
-			if (tab.path === this.path) tab.path = newpath;
+			if (tab.path.startsWith(this.path)) tab.path = `${newpath}${tab.path.slice(this.path.length)}`;
 		});
 
 		// Update references to perform the move

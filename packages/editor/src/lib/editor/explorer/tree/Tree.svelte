@@ -1,6 +1,6 @@
 <script lang="ts" module>
 	import { ModelNode, popl, type ModelRoot } from "./model.svelte";
-	import { ModelTab } from "$lib/editor/tablist/model.svelte";
+	import { getTabs, ModelTab } from "$lib/editor/tablist/model.svelte";
 	import * as monaco from "../../monaco";
 	import { Tree } from "melt/builders";
 	import { info } from "$lib/session";
@@ -116,6 +116,10 @@
 			baseURL: "/api/file",
 			method: "DELETE",
 		}).catchToast();
+
+		getTabs().forEach((tab) => {
+			if (tab.path === node.path) tab.close();
+		});
 
 		tree?.select("");
 		node.remove();
