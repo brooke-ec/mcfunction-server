@@ -11,7 +11,7 @@ export default defineConfig({
 		custom(),
 		licensePlugin({
 			licenseOverrides: { "mc-dp-icons@4.0.2": "AGPL-3.0-or-later", "runed@0.23.4": "MIT" },
-			includePackages: () => ["node_modules/greset", "licenses/javalin"],
+			includePackages: () => ["node_modules/greset", "node_modules/syntax-mcfunction", "licenses/javalin"],
 		}),
 	],
 	server: {
