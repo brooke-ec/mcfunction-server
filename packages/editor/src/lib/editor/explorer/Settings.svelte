@@ -1,7 +1,8 @@
 <script lang="ts">
-	import * as cookie from "cookie";
-	import { showContextmenu } from "../monaco/menu";
 	import { switchTheme, themes } from "../monaco/theme";
+	import { showContextmenu } from "../monaco/menu";
+	import InfoDialog, * as dialog from "./InfoDialog.svelte";
+	import * as cookie from "cookie";
 
 	const uuid = cookie.parse(document.cookie).UUID;
 
@@ -16,6 +17,8 @@
 	}
 </script>
 
+<InfoDialog />
+
 <div class="container">
 	{#if !uuid?.match(/^[0-]*$/)}
 		<img src="https://crafatar.com/avatars/{uuid}?overlay&size=8" alt="your minecraft head" width="32" />
@@ -24,7 +27,7 @@
 	{/if}
 	<a class="codicon codicon-sign-out" href="/logout" aria-label="logout"></a>
 	<button class="codicon codicon-symbol-color" aria-label="change theme" onclick={selectTheme}></button>
-	<button class="codicon codicon-info" aria-label="information"></button>
+	<button class="codicon codicon-info" aria-label="information" onclick={dialog.open}></button>
 </div>
 
 <style lang="scss">
