@@ -1,8 +1,8 @@
-import { refresh } from "./Editor.svelte";
 import * as tree from "./explorer/tree/Tree.svelte";
 import { ActionDescriptor } from "./monaco/action";
 import { KeyMod, KeyCode } from "monaco-editor";
 import * as tabs from "./tablist/model.svelte";
+import { refresh } from "./Editor.svelte";
 import { goto } from "$app/navigation";
 import { editor } from "./monaco";
 
@@ -114,5 +114,6 @@ export const commandPalette = new ActionDescriptor({
 export const closeTab = new ActionDescriptor({
 	id: "custom.tab.close",
 	label: "Close Active Tab",
+	keybindings: [KeyMod.CtrlCmd | KeyCode.KeyQ],
 	run: () => tabs.getActive()?.close(),
 });

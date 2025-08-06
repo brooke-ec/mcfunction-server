@@ -8,6 +8,7 @@ import { Registry } from "monaco-textmate";
 import * as monaco from "monaco-editor";
 import * as actions from "../actions";
 import { loadWASM } from "onigasm";
+import "./quickopen";
 
 export const DEFAULT_MODEL = monaco.editor.createModel("");
 export const SCOPE_MCFUNCTION = "mcfunction";
@@ -40,8 +41,8 @@ export async function create(element: HTMLElement) {
 	await Promise.all(tasks);
 
 	editor = monaco.editor.create(element, { theme: selectedTheme(), model: DEFAULT_MODEL });
-
 	renaming = editor.createContextKey("renaming", false);
+
 	for (const action of Object.values(actions)) action.register();
 
 	const observer = new ResizeObserver(() => {

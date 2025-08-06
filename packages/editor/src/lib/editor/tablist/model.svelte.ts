@@ -54,11 +54,12 @@ export class ModelTab {
 	}
 
 	public switch(): void {
-		if (this.active) return;
+		if (!this.active) {
+			editor.setModel(this.model);
+			active = this;
+		}
 
-		editor.setModel(this.model);
 		editor.focus();
-		active = this;
 	}
 
 	public close(): void {

@@ -9,6 +9,7 @@
 </script>
 
 <script lang="ts">
+	import mcfunction from "mc-dp-icons/fileicons/imgs/mcf_load.svg?no-inline";
 	import { isLoading, setLoading } from "../../routes/Loading.svelte";
 	import type { Attachment } from "svelte/attachments";
 	import Explorer from "./explorer/Explorer.svelte";
@@ -26,7 +27,7 @@
 <Toaster />
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<main {@attach attach} tabindex="0">
+<main {@attach attach} tabindex="0" style="--mcfunction-icon: url({mcfunction})">
 	{#if !isLoading()}
 		<Explorer />
 		<TabList />
@@ -45,5 +46,26 @@
 		grid-template-areas:
 			"explorer tablist"
 			"explorer editor";
+	}
+
+	:global([aria-label="quick open function"]) {
+		align-items: center;
+		display: flex;
+
+		&::before {
+			content: "";
+
+			position: relative;
+			margin-right: -5px;
+			margin-left: 5px;
+
+			height: 16px;
+			width: 16px;
+
+			background-repeat: no-repeat;
+			background-position: center;
+			background-size: contain;
+			background-image: var(--mcfunction-icon);
+		}
 	}
 </style>

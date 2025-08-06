@@ -39,6 +39,12 @@ export class ModelNode implements TreeItem {
 		return this.parent.children.filter((c) => c !== this);
 	}
 
+	public walkFunctions(): ModelFunction[] {
+		if (this.isFunction()) return [this];
+		if (this.isDirectory()) return this.children.flatMap((c) => c.walkFunctions());
+		throw new Error("Inaccessible Code");
+	}
+
 	public isFunction(): this is ModelFunction {
 		return this.children === undefined;
 	}
