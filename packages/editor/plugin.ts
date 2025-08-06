@@ -15,5 +15,10 @@ export function custom(): Plugin {
 				};
 			}
 		},
+		// Force do full reload as monaco doesn't play nicely with HMR (or maybe it's just me)
+		handleHotUpdate({ server }) {
+			server.ws.send({ type: "full-reload" });
+			return [];
+		},
 	};
 }
