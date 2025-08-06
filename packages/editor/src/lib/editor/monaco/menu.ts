@@ -1,5 +1,5 @@
+import { EditorAction } from "monaco-editor/esm/vs/editor/browser/editorExtensions";
 import { Separator } from "monaco-editor/esm/vs/base/common/actions";
-import { ActionDescriptor } from "./action";
 import { editor } from ".";
 
 const CONTRIBUTION_ID = "editor.contrib.contextmenu";
@@ -17,7 +17,7 @@ export type BasicAction = {
 	label: string;
 };
 
-export function showContextmenu(anchor: Anchor, actions: (ActionDescriptor | BasicAction | "separator")[]) {
+export function showContextmenu(anchor: Anchor, actions: (EditorAction | BasicAction | "separator")[]) {
 	if (!editor) throw new Error("Editor is not initialized");
 
 	const controller = editor.getContribution(CONTRIBUTION_ID) as ContextMenuController | null;
@@ -26,11 +26,11 @@ export function showContextmenu(anchor: Anchor, actions: (ActionDescriptor | Bas
 	controller._doShowContextMenu(
 		actions.map((action) => {
 			if (action === "separator") return new Separator();
-			else if (action instanceof ActionDescriptor)
+			else if (action instanceof EditorAction)
 				return {
-					label: action.definition.alias ?? action.definition.label,
-					run: action.definition.run,
-					id: action.definition.id,
+					id: action.id,
+					label: action.alias,
+					run: action.run,
 					enabled: true,
 				};
 			else

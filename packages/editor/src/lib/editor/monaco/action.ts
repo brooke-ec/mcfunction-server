@@ -1,28 +1,34 @@
-export type ActionDefinition = import("monaco-editor").editor.IActionDescriptor & { alias?: string };
-export type DefinitionFactory = (monaco: typeof import("monaco-editor")) => ActionDefinition;
-import { editor } from ".";
+import type { InstantiationAccessor } from "monaco-editor/esm/vs/platform/instantiation/common/instantiationService";
+import { EditorAction, registerEditorAction } from "monaco-editor/esm/vs/editor/browser/editorExtensions";
+import { ContextKeyExpr } from "monaco-editor/esm/vs/platform/contextkey/common/contextkey";
 
-export class ActionDescriptor {
-	private _definition: ActionDefinition;
+export interface ActionDefinition {
+	id: string;
+	label: string;
+	alias?: string;
+	keybind?: number[];
+	precondition?: string;
+	run: (accessor: InstantiationAccessor) => void | Promise<void>;
+}
 
-	constructor(definition: ActionDefinition) {
-		this._definition = definition;
-	}
+export function createAction(definition: ActionDefinition) {
+	const ctor = class extends EditorAction {
+		public static readonly ID = definition.id;
 
-	public get id() {
-		return this.definition.id;
-	}
+		public constructor() {
+			super({
+				id: definition.id,
+				label: definition.label,
+				alias: definition.alias ?? definition.label,
+				precondition: definition.precondition && ContextKeyExpr.deserialize(definition.precondition),
+				kbOpts: definition.keybind && {
+					primary: definition.keybind,
+				},
+			});
 
-	public get definition() {
-		if (!this._definition) throw new Error("Action has not been defined yet");
-		return this._definition;
-	}
+			this.run = definition.run;
+		}
+	};
 
-	public register() {
-		editor.addAction(this._definition);
-		const result = editor.getAction(this._definition.id)!;
-
-		this._definition = { ...this._definition, id: result.id };
-		return result;
-	}
+	return registerEditorAction(ctor);
 }
