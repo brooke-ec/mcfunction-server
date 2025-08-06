@@ -112,10 +112,11 @@
 
 		if (!confirm(`Are you sure you want to delete '${node.name}'?`)) return;
 
-		await ofetch(node.path, {
-			baseURL: "/api/file",
-			method: "DELETE",
-		}).catchToast();
+		if (node.walkFunctions.length > 0)
+			await ofetch(node.path, {
+				baseURL: "/api/file",
+				method: "DELETE",
+			}).catchToast();
 
 		getTabs().forEach((tab) => {
 			if (tab.path === node.path) tab.close();
