@@ -19,7 +19,7 @@
 
 <div class="container">
 	{#if !info.uuid?.match(/^[0-]*$/)}
-		<img src="https://crafatar.com/avatars/{info.uuid}?overlay&size=8" alt="your minecraft head" width="32" />
+		<img src="https://render.nimahost.deno.net/avatar?uuid={info.uuid}" alt="your minecraft head" width="32" />
 	{:else}
 		<span class="codicon codicon-account" style="font-size: 32px;"></span>
 	{/if}
